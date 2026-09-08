@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/pages/account.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="vv-pad auth-page rise-in">
+  <div class="auth-card">
+    <p class="vv-eyebrow vv-mb-3">Акаунт</p>
+    <h1 class="page-title">Вхід</h1>
+    <form class="account-form" method="post" data-qa="login-form">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <p class="invalid-feedback">{{ form.non_field_errors.0 }}</p>
+      {% endif %}
+      {% for field in form %}
+        <div class="vv-float">
+          {{ field }}
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {% if field.errors %}<p class="invalid-feedback">{{ field.errors.0 }}</p>{% endif %}
+        </div>
+      {% endfor %}
+      <button type="submit" class="vv-btn vv-btn--solid">Увійти</button>
+    </form>
+    <p class="auth-links">
+      <a href="{% url 'authentication:register' %}">Створити акаунт</a>
+      <a href="{% url 'authentication:password_reset' %}">Забули пароль?</a>
+    </p>
+  </div>
+</section>
+{% endblock %}

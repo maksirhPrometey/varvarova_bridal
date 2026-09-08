@@ -1,0 +1,106 @@
+.vv-field {
+  position: relative;
+}
+
+.vv-field input,
+.vv-field select {
+  width: 100%;
+  padding: 17px 30px 17px 2px;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--vv-hair);
+  font-size: 16px;
+  letter-spacing: 0.06em;
+  color: var(--vv-ink);
+  border-radius: 0;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.vv-field select {
+  font-size: 16px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.vv-field input::placeholder {
+  color: #aaa;
+}
+
+.vv-field__icon {
+  position: absolute;
+  right: 2px;
+  top: 18px;
+  pointer-events: none;
+}
+
+.vv-float {
+  position: relative;
+}
+
+.vv-float .form-control {
+  width: 100%;
+  padding: 16px 2px;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--vv-hair);
+  border-radius: 0;
+  box-shadow: none;
+  font-size: 16px;
+  letter-spacing: 0.04em;
+  color: var(--vv-ink);
+}
+
+.vv-float .form-control:focus {
+  background: none;
+  border-bottom-color: var(--vv-ink);
+  outline: none;
+}
+
+.vv-float .form-control::placeholder {
+  color: transparent;
+}
+
+.vv-float label {
+  position: absolute;
+  left: 2px;
+  top: 16px;
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--vv-mute);
+  pointer-events: none;
+  transform-origin: left top;
+  transition: transform 0.25s ease, font-size 0.25s ease, letter-spacing 0.25s ease;
+}
+
+.vv-float .form-control:focus + label,
+.vv-float .form-control:not(:placeholder-shown) + label {
+  transform: translateY(-19px);
+  font-size: 9.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.vv-float textarea.form-control {
+  resize: none;
+  min-height: 84px;
+}
+
+.vv-float .invalid-feedback {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: #a33;
+}
+
+.vv-formcard {
+  background: var(--vv-pearl);
+  padding: 84px 88px;
+}
+
+@media (max-width: 767px) {
+  .vv-formcard {
+    padding: 48px 24px;
+  }
+}

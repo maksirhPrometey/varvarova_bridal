@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/pages/content.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="vv-pad content-page">
+  <h1>Наречені</h1>
+  {% if is_stub %}
+    {% include "partials/stub_notice.html" with message="Галерея наповниться після публікації в адмінці." %}
+  {% endif %}
+  <div class="brides-grid">
+    {% for item in items %}
+      <figure>
+        {% if item.image %}
+          <img src="{{ item.image.url }}" alt="{{ item.title|default:'' }}" loading="lazy">
+        {% endif %}
+        {% if item.product %}
+          <figcaption class="content-meta vv-mt-4">
+            <a href="{% url 'catalog:detail' slug=item.product.slug %}">{{ item.product.name }}</a>
+          </figcaption>
+        {% elif item.title %}
+          <figcaption class="content-meta vv-mt-4">{{ item.title }}</figcaption>
+        {% endif %}
+      </figure>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

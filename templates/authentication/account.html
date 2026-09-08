@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/pages/account.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="vv-pad account-page">
+  <div class="account-layout">
+    {% include "partials/account_nav.html" %}
+    <div class="account-main rise-in">
+      <h1 class="page-title">Профіль</h1>
+
+      <form class="account-form" method="post" data-qa="profile-form">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="profile">
+        {% for field in profile_form %}
+          <div class="vv-float">
+            {{ field }}
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {% if field.errors %}<p class="invalid-feedback">{{ field.errors.0 }}</p>{% endif %}
+          </div>
+        {% endfor %}
+        <button type="submit" class="vv-btn vv-btn--solid">Зберегти</button>
+      </form>
+
+      <h2 class="account-sub">Пароль</h2>
+      <form class="account-form" method="post" data-qa="password-form">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="password">
+        {% for field in password_form %}
+          <div class="vv-float">
+            {{ field }}
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {% if field.errors %}<p class="invalid-feedback">{{ field.errors.0 }}</p>{% endif %}
+          </div>
+        {% endfor %}
+        <button type="submit" class="vv-btn">Змінити пароль</button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,61 @@
+.catalog-hero {
+  padding-top: 76px;
+  padding-bottom: 56px;
+  text-align: center;
+}
+
+.catalog-hero h1 {
+  font-size: clamp(34px, 5vw, 58px);
+}
+
+.catalog-hero__intro {
+  max-width: 480px;
+  margin: 0 auto;
+  font-size: 14px;
+  line-height: 1.85;
+  color: #555;
+  font-weight: 300;
+}
+
+.catalog-crumbs {
+  padding-top: 44px;
+}
+
+.catalog-children {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 28px;
+}
+
+.catalog-children a {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--vv-hair);
+  padding-bottom: 4px;
+}
+
+.catalog-tags {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 28px;
+}
+
+.catalog-clear {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--vv-mute);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  padding: 11px 8px;
+}
+
+.catalog-grid-wrap {
+  padding-top: 56px;
+  padding-bottom: 130px;
+}

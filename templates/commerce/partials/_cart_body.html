@@ -1,0 +1,107 @@
+<div id="cart-body">
+  {% if swap_count %}
+    {% include "commerce/partials/_cart_count.html" with oob=True %}
+  {% endif %}
+  {% if cart_error %}
+    <p class="cart-error vv-pad" role="alert">{{ cart_error }}</p>
+  {% endif %}
+
+  {% if lines %}
+    <section class="vv-pad cart-page" data-qa="cart-page">
+      <header class="cart-page__head">
+        <p class="vv-eyebrow">{{ positions_label }}</p>
+        <h1>Мій кошик</h1>
+      </header>
+
+      <div class="cart-layout">
+        <div class="cart-lines">
+          <div class="cart-lines__head">
+            <p class="vv-colhead">Товар</p>
+            <p class="vv-colhead cart-lines__sum-label">Сума</p>
+          </div>
+
+          {% for line in lines %}
+            {% with item=line.item product=line.item.product %}
+              <article class="vv-item" id="cart-item-{{ item.pk }}">
+                <div class="vv-item__thumb">
+                  <a href="{% url 'catalog:detail' slug=product.slug %}">
+                    {% if line.image %}
+                      <img src="{{ line.image.image.url }}" alt="{{ line.image.alt|default:product.name }}" loading="lazy">
+                    {% endif %}
+                  </a>
+                </div>
+                <div class="vv-item__info">
+                  <h2 class="vv-item__title">
+                    <a href="{% url 'catalog:detail' slug=product.slug %}">{{ product.name }}</a>
+                  </h2>
+                  <p class="vv-item__meta">
+                    {% if product.category %}{{ product.category.name }} · {% endif %}{{ line.unit_uah|floatformat:0 }} грн
+                  </p>
+                  <div class="vv-item__actions">
+                    <div class="vv-qty" aria-label="Кількість">
+                      <form method="post" action="{% url 'commerce:cart_qty' %}" hx-post="{% url 'commerce:cart_qty' %}" hx-target="#cart-body" hx-swap="outerHTML">
+                        {% csrf_token %}
+                        <input type="hidden" name="item_id" value="{{ item.pk }}">
+                        <input type="hidden" name="qty" value="{{ item.qty|add:'-1' }}">
+                        <button type="submit" aria-label="Менше"{% if item.qty <= 1 %} disabled{% endif %}>−</button>
+                      </form>
+                      <span>{{ item.qty }}</span>
+                      <form method="post" action="{% url 'commerce:cart_qty' %}" hx-post="{% url 'commerce:cart_qty' %}" hx-target="#cart-body" hx-swap="outerHTML">
+                        {% csrf_token %}
+                        <input type="hidden" name="item_id" value="{{ item.pk }}">
+                        <input type="hidden" name="qty" value="{{ item.qty|add:'1' }}">
+                        <button type="submit" aria-label="Більше"{% if item.qty >= product.stock_qty %} disabled{% endif %}>+</button>
+                      </form>
+                    </div>
+                    <form method="post" action="{% url 'commerce:cart_remove' %}" hx-post="{% url 'commerce:cart_remove' %}" hx-target="#cart-body" hx-swap="outerHTML" hx-confirm="Видалити «{{ product.name }}» з кошика?">
+                      {% csrf_token %}
+                      <input type="hidden" name="item_id" value="{{ item.pk }}">
+                      <button type="submit" class="vv-remove">
+                        <svg width="9" height="9" viewBox="0 0 9 9" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">
+                          <path d="M1 1l7 7M8 1l-7 7"/>
+                        </svg>
+                        <span>Видалити</span>
+                      </button>
+                    </form>
+                  </div>
+                </div>
+                <div class="vv-item__price">
+                  <p>{{ line.line_uah|floatformat:0 }} грн</p>
+                  {% if item.qty > 1 %}
+                    <p class="vv-item__unit">{{ line.unit_uah|floatformat:0 }} грн × {{ item.qty }}</p>
+                  {% endif %}
+                </div>
+              </article>
+            {% endwith %}
+          {% endfor %}
+
+          <a class="cart-continue" href="{% url 'catalog:list' slug='wedding' %}">← Продовжити покупки</a>
+        </div>
+
+        <aside class="vv-summary">
+          <h2>Разом</h2>
+          <div class="vv-sumline">
+            <span>Проміжна сума</span>
+            <span>{{ subtotal|floatformat:0 }} грн</span>
+          </div>
+          <div class="vv-sumline">
+            <span>Доставка</span>
+            <span>Безкоштовно</span>
+          </div>
+          <div class="vv-sumtotal">
+            <span>Загалом</span>
+            <span>{{ subtotal|floatformat:0 }} грн</span>
+          </div>
+          <a class="vv-btn vv-btn--solid cart-checkout" href="{% url 'commerce:checkout' %}" data-qa="checkout-cta">Оформити замовлення</a>
+        </aside>
+      </div>
+    </section>
+  {% else %}
+    <section class="vv-pad cart-page cart-empty rise-in" data-qa="cart-page">
+      <div class="cart-empty__icon" aria-hidden="true"></div>
+      <h1 class="page-title">Ваш кошик порожній</h1>
+      <p>Оберіть сукню з колекції — або збережіть улюблені моделі, щоб повернутися до них пізніше.</p>
+      <a class="vv-btn vv-btn--solid" href="{% url 'catalog:list' slug='wedding' %}">До каталогу</a>
+    </section>
+  {% endif %}
+</div>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Inter:wght@200;300;400;500&display=swap" rel="stylesheet">
+<script src="./image-slot.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #FFFFFF; color: #222222; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: #222222; text-decoration: none; }
+  a:hover { color: #8A8A8A; }
+  [data-zoom] image-slot { transition: transform 1.4s cubic-bezier(.2,.8,.3,1); }
+  [data-zoom]:hover image-slot { transform: scale(1.035); }
+  @media (max-width: 1000px) {
+    #vv-story { grid-template-columns: minmax(0,1fr) !important; gap: 48px !important; }
+    #vv-story-text { padding: 56px 48px !important; }
+    #vv-gallery { grid-template-columns: minmax(0,1fr) minmax(0,1fr) !important; grid-auto-rows: 180px !important; }
+    #vv-gallery > * { grid-column: span 1 !important; grid-row: span 1 !important; }
+    #vv-gallery > *:first-child { grid-column: span 2 !important; grid-row: span 2 !important; }
+    #vv-news { grid-template-columns: minmax(0,1fr) !important; }
+    #vv-nav-links { display: none !important; }
+  }
+  @media (max-width: 991px) {
+    #vv-nav-links { display: none !important; }
+    #vv-burger-btn { display: flex !important; }
+    #vv-burger:checked ~ #vv-drawer { display: block !important; }
+    #vv-head-right a:not(:last-child) { display: none; }
+    #vv-page > header > div { padding: 16px 20px !important; position: relative; }
+    #vv-burger-btn { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); width: 18px; height: 12px; }
+    #vv-head-right { padding-right: 34px; }
+  }
+  @media (max-width: 767px) {
+    #vv-page > section, #vv-page > div, #vv-page > footer, #vv-page > main {
+      padding-left: 20px !important; padding-right: 20px !important;
+    }
+    #vv-page img, #vv-page image-slot { max-width: 100%; }
+  }
+</style>
+</helmet>
+
+<div id="vv-page" style="max-width: 100%; overflow-x: hidden;">
+
+  <header data-h="1" style="position: sticky; top: 0; z-index: 40; background: rgba(255,255,255,0.94); backdrop-filter: blur(10px); border-bottom: 1px solid #EFEFEF;">
+    <input type="checkbox" id="vv-burger" style="display: none;">
+    <div style="display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 32px; padding: 22px 48px;">
+      <a href="Varvarova%20Home.dc.html" style="font-family: 'Playfair Display', serif; font-size: 20px; letter-spacing: 0.32em; white-space: nowrap; padding-left: 0.32em;">VARVAROVA</a>
+      <label for="vv-burger" id="vv-burger-btn" aria-label="Меню" style="display: none; align-items: center; cursor: pointer;"><svg width="18" height="12" viewBox="0 0 18 12" fill="none" stroke="#222222" stroke-width="1.2"><path d="M0 1h18M0 6h18M0 11h18"/></svg></label>
+      <nav id="vv-nav-links" style="display: flex; justify-content: center; gap: 24px; font-size: 10.5px; letter-spacing: 0.13em; text-transform: uppercase; white-space: nowrap;">
+        <a href="Varvarova%20Catalog.dc.html">Весільні сукні</a>
+        <a href="Varvarova%20Catalog.dc.html">Вечірні сукні</a>
+        <a href="Varvarova%20About.dc.html" style="color: #222222; border-bottom: 1px solid #222222; padding-bottom: 4px;">Про бренд</a>
+        <a href="Varvarova%20Boutiques.dc.html">Салони</a>
+        <a href="Varvarova%20B2B.dc.html">Стати партнером</a>
+      </nav>
+      <div id="vv-head-right" style="display: flex; gap: 22px; justify-content: flex-end; align-items: center; font-size: 10.5px; letter-spacing: 0.13em; text-transform: uppercase; white-space: nowrap;">
+        <a href="Varvarova%20Account.dc.html">Улюблене</a>
+        <a href="Varvarova%20Account.dc.html">Акаунт</a>
+        <a href="Varvarova%20Cart.dc.html">Кошик (0)</a>
+      </div>
+    </div>
+    <div id="vv-drawer" style="display: none; border-top: 1px solid #EFEFEF; padding: 8px 20px 22px;"><a href="Varvarova%20Catalog.dc.html" style="display: block; padding: 15px 0; border-bottom: 1px solid #F2F2F2; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;">Весільні сукні</a><a href="Varvarova%20Catalog.dc.html" style="display: block; padding: 15px 0; border-bottom: 1px solid #F2F2F2; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;">Вечірні сукні</a><a href="Varvarova%20Catalog.dc.html" style="display: block; padding: 15px 0; border-bottom: 1px solid #F2F2F2; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;">Кутюр</a><a href="Varvarova%20About.dc.html" style="display: block; padding: 15px 0; border-bottom: 1px solid #F2F2F2; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;">Про бренд</a><a href="Varvarova%20Boutiques.dc.html" style="display: block; padding: 15px 0; border-bottom: 1px solid #F2F2F2; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;">Салони</a><a href="Varvarova%20B2B.dc.html" style="display: block; padding: 15px 0; border-bottom: 1px solid #F2F2F2; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;">Стати партнером</a><a href="Varvarova%20Account.dc.html" style="display: block; padding: 15px 0; border-bottom: 1px solid #F2F2F2; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;">Wishlist</a><a href="Varvarova%20Cart.dc.html" style="display: block; padding: 15px 0; border-bottom: 1px solid #F2F2F2; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;">Кошик</a></div>
+  </header>
+
+  <section style="padding: 170px 48px 150px; max-width: 1180px;">
+    <p style="margin: 0 0 44px; font-size: 10px; letter-spacing: 0.32em; text-transform: uppercase; color: #8A8A8A;">Філософія</p>
+    <h1 style="margin: 0 0 64px; font-family: 'Playfair Display', serif; font-weight: 400; font-size: clamp(48px, 8vw, 104px); line-height: 1.02; letter-spacing: -0.005em; text-wrap: balance;">Світ <span style="font-style: italic;">Varvarova</span></h1>
+    <p style="margin: 0; max-width: 760px; font-family: 'Playfair Display', serif; font-size: 27px; line-height: 1.62; color: #222222; text-wrap: pretty;">Ми шиємо сукні для одного дня, який згадують усе життя. Кожна модель проходить через руки сімнадцяти майстрів — від першого ескізу до останньої перлини, вшитої вручну.</p>
+    <p style="margin: 44px 0 0; max-width: 520px; font-size: 14px; line-height: 2; font-weight: 300; color: #555555; text-wrap: pretty;">Двадцять чотири роки ми працюємо з французьким мереживом, італійським шовком і власними лекалами. Без масового виробництва, без компромісів у посадці.</p>
+  </section>
+
+  <section id="vv-story" style="display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 0; align-items: stretch;">
+    <div data-zoom="1" style="position: relative; aspect-ratio: 4 / 5; background: #F5F5F5; overflow: hidden;">
+      <image-slot id="vv-ab-atelier" shape="rect" fit="cover" placeholder="Ательє — робота над мереживом"></image-slot>
+    </div>
+    <div id="vv-story-text" style="display: flex; flex-direction: column; justify-content: center; padding: 90px 96px;">
+      <p style="margin: 0 0 30px; font-size: 10px; letter-spacing: 0.32em; text-transform: uppercase; color: #8A8A8A;">Історія</p>
+      <h2 style="margin: 0 0 40px; font-family: 'Playfair Display', serif; font-weight: 400; font-size: 42px; line-height: 1.2; letter-spacing: 0.01em;">Львів, 2001 —<br>невелика майстерня</h2>
+      <div style="display: flex; flex-direction: column; gap: 26px; font-size: 14px; line-height: 2.05; font-weight: 300; color: #555555; max-width: 460px;">
+        <p style="margin: 0; text-wrap: pretty;">Варвара почала з чотирьох сукень на замовлення і однієї швейної машини. Перша колекція складалася з семи моделей — усі були пошиті за одним принципом: сукня має сидіти так, ніби її виростили на тілі.</p>
+        <p style="margin: 0; text-wrap: pretty;">Сьогодні ательє займає три поверхи у центрі Львова, а колекції продаються у понад 400 салонах у 38 країнах. Виробництво залишилося там, де почалося — жодну сукню не шиють за межами України.</p>
+        <p style="margin: 0; text-wrap: pretty;">Мереживо ми обираємо особисто в Кале двічі на рік, шовк — у Комо. Усе інше, від корсетної основи до вишивки бісером, роблять наші майстри вручну.</p>
+      </div>
+      <p style="margin: 48px 0 0; font-family: 'Playfair Display', serif; font-style: italic; font-size: 19px; line-height: 1.6; color: #222222; border-left: 1px solid #DDDDDD; padding-left: 26px; max-width: 420px;">«Наречена не має думати про сукню. Вона має думати про день.»</p>
+      <p style="margin: 18px 0 0; padding-left: 27px; font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; color: #8A8A8A;">Варвара, засновниця</p>
+    </div>
+  </section>
+
+  <section style="padding: 160px 48px 0;">
+    <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 40px; margin-bottom: 64px; flex-wrap: wrap;">
+      <div>
+        <p style="margin: 0 0 18px; font-size: 10px; letter-spacing: 0.32em; text-transform: uppercase; color: #8A8A8A;">Галерея</p>
+        <h2 style="margin: 0; font-family: 'Playfair Display', serif; font-weight: 400; font-size: 48px; line-height: 1.15; letter-spacing: 0.01em; text-wrap: balance;">Наші наречені<br>та Знаменитості</h2>
+      </div>
+      <p style="margin: 0; max-width: 330px; font-size: 13px; line-height: 1.9; font-weight: 300; color: #8A8A8A;">Кадри з реальних весіль, червоних килимів і зйомок для Vogue Ukraine.</p>
+    </div>
+
+    <div id="vv-gallery" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: 210px; gap: 8px;">
+      <div data-zoom="1" class="vv-tall" style="position: relative; grid-column: span 2; grid-row: span 3; background: #F5F5F5; overflow: hidden;">
+        <image-slot id="vv-ab-g1" shape="rect" fit="cover" placeholder="Наречена у сукні Céline"></image-slot>
+      </div>
+      <div data-zoom="1" style="position: relative; grid-column: span 2; grid-row: span 2; background: #F5F5F5; overflow: hidden;">
+        <image-slot id="vv-ab-g2" shape="rect" fit="cover" placeholder="Червоний килим — вечірня сукня"></image-slot>
+      </div>
+      <div data-zoom="1" style="position: relative; grid-row: span 1; background: #F5F5F5; overflow: hidden;">
+        <image-slot id="vv-ab-g3" shape="rect" fit="cover" placeholder="Деталь вишивки"></image-slot>
+      </div>
+      <div data-zoom="1" style="position: relative; grid-row: span 1; background: #F5F5F5; overflow: hidden;">
+        <image-slot id="vv-ab-g4" shape="rect" fit="cover" placeholder="Фата, вітер"></image-slot>
+      </div>
+      <div data-zoom="1" class="vv-tall" style="position: relative; grid-column: span 1; grid-row: span 2; background: #F5F5F5; overflow: hidden;">
+        <image-slot id="vv-ab-g5" shape="rect" fit="cover" placeholder="Редакційна зйомка"></image-slot>
+      </div>
+      <div data-zoom="1" style="position: relative; grid-column: span 3; grid-row: span 2; background: #F5F5F5; overflow: hidden;">
+        <image-slot id="vv-ab-g6" shape="rect" fit="cover" placeholder="Панорамний кадр — група нареченої"></image-slot>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding: 150px 48px 140px;">
+    <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 40px; margin-bottom: 64px;">
+      <h2 style="margin: 0; font-family: 'Playfair Display', serif; font-weight: 400; font-size: 42px; letter-spacing: 0.02em;">Останні новини</h2>
+      <a href="#" style="font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; border-bottom: 1px solid #222222; padding-bottom: 6px; white-space: nowrap;">Усі публікації</a>
+    </div>
+
+    <div id="vv-news" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 56px 40px;">
+      <sc-for list="{{ posts }}" as="p" hint-placeholder-count="3">
+        <article style="display: flex; flex-direction: column; gap: 22px;">
+          <div data-zoom="1" style="position: relative; aspect-ratio: 4 / 3; background: #F5F5F5; overflow: hidden;">
+            <image-slot id="{{ p.slot }}" shape="rect" fit="cover" placeholder="{{ p.title }}"></image-slot>
+          </div>
+          <div>
+            <p style="margin: 0 0 14px; font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; color: #8A8A8A;">{{ p.date }} · {{ p.tag }}</p>
+            <h3 style="margin: 0 0 16px; font-family: 'Playfair Display', serif; font-weight: 400; font-size: 24px; line-height: 1.35; letter-spacing: 0.01em; text-wrap: pretty;">{{ p.title }}</h3>
+            <p style="margin: 0 0 22px; font-size: 13px; line-height: 1.9; font-weight: 300; color: #555555; text-wrap: pretty;">{{ p.excerpt }}</p>
+            <a href="#" style="font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; border-bottom: 1px solid #DDDDDD; padding-bottom: 5px;">Читати далі</a>
+          </div>
+        </article>
+      </sc-for>
+    </div>
+  </section>
+
+  <footer style="border-top: 1px solid #EFEFEF; padding: 56px 48px; display: flex; align-items: center; justify-content: space-between; gap: 32px; flex-wrap: wrap;">
+    <p style="margin: 0; font-family: 'Playfair Display', serif; font-size: 16px; letter-spacing: 0.34em;">VARVAROVA</p>
+    <p style="margin: 0; font-size: 11px; letter-spacing: 0.1em; color: #8A8A8A;">© 2026 Varvarova · Львів, Україна</p>
+  </footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:1500}}">
+const POSTS = [
+  { id: 'n1', date: '18.08.2026', tag: 'Колекція', title: 'LUMIÈRE HÉRITAGE: за лаштунками зйомки в Шато де Кале', excerpt: 'Три дні, сорок два образи і мереживо, яке приїхало з Кале за тиждень до старту.' },
+  { id: 'n2', date: '02.07.2026', tag: 'Події', title: 'Trunk show у Мілані: як пройшли чотири дні на Via della Spiga', excerpt: 'Понад двісті записів на примірку і перша поява колекції Couture в Італії.' },
+  { id: 'n3', date: '15.05.2026', tag: 'Ательє', title: 'Сімнадцять рук: скільки триває пошив однієї сукні', excerpt: 'Від лекала до фінальної примірки — розкладаємо шість тижнів роботи по етапах.' },
+];
+
+class Component extends DCLogic {
+  renderVals() {
+    return { posts: POSTS.map(p => ({ ...p, slot: 'vv-news-' + p.id })) };
+  }
+}
+</script>
+</body>
+</html>

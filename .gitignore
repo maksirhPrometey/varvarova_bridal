@@ -1,0 +1,30 @@
+# Django / Python
+*.py[cod]
+__pycache__/
+*.egg-info/
+.venv/
+venv/
+.env
+db.sqlite3
+*.sqlite3
+
+# Static / media
+staticfiles/
+media/*
+!media/.gitkeep
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+*.swp
+
+# Test / lint
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Docker local overrides secrets
+*.pem

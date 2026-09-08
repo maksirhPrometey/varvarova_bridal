@@ -1,0 +1,133 @@
+.about-hero {
+  padding-top: 170px;
+  padding-bottom: 150px;
+  max-width: 1180px;
+}
+
+.about-hero h1 {
+  font-size: clamp(48px, 8vw, 104px);
+  line-height: 1.02;
+  letter-spacing: -0.005em;
+  text-wrap: balance;
+  margin-bottom: 64px;
+}
+
+.about-hero__lede {
+  font-family: var(--ff-serif);
+  font-size: clamp(20px, 2.4vw, 27px);
+  line-height: 1.62;
+  max-width: 760px;
+  text-wrap: pretty;
+}
+
+.about-hero__body {
+  margin-top: 44px;
+  max-width: 520px;
+  font-size: 14px;
+  line-height: 2;
+  color: #555;
+  font-weight: 300;
+  text-wrap: pretty;
+}
+
+.about-story {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.about-story__media {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  background: var(--vv-pearl);
+  overflow: hidden;
+}
+
+.about-story__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.about-story__text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 56px 20px;
+}
+
+.about-quote {
+  font-family: var(--ff-serif);
+  font-style: italic;
+  font-size: 19px;
+  line-height: 1.6;
+  border-left: 1px solid var(--vv-hair);
+  padding-left: 26px;
+  max-width: 420px;
+  margin-top: 48px;
+}
+
+.about-quote-attr {
+  margin-top: 18px;
+  padding-left: 27px;
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--vv-mute);
+}
+
+.about-body-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  font-size: 14px;
+  line-height: 2.05;
+  font-weight: 300;
+  color: #555;
+  max-width: 460px;
+}
+
+.about-news-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 56px 40px;
+}
+
+.about-more {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--vv-hair);
+  padding-bottom: 5px;
+}
+
+@media (min-width: 768px) {
+  .about-news-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 992px) {
+  .about-story {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .about-story__text {
+    padding: 90px 96px;
+  }
+
+  .about-news-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .about-hero {
+    padding-top: 170px;
+    padding-bottom: 150px;
+  }
+}
+
+@media (max-width: 991px) {
+  .about-hero {
+    padding-top: 96px;
+    padding-bottom: 80px;
+  }
+}

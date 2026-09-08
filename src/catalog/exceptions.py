@@ -1,0 +1,2 @@
+class WishlistError(Exception):
+    pass

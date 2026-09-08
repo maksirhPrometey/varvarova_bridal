@@ -1,0 +1,13 @@
+{% if products %}
+  <div class="product-grid product-grid--cols-{{ grid_cols|default:3 }}" data-qa="product-grid" id="product-grid">
+    {% for product in products %}
+      <div class="product-grid__item reveal">
+        {% include "catalog/partials/product_card.html" %}
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="product-grid" data-qa="product-grid" id="product-grid">
+    <p class="catalog-empty">Поки немає моделей у цій категорії.</p>
+  </div>
+{% endif %}

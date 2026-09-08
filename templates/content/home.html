@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/pages/home.css' %}">
+{% endblock %}
+
+{% block content %}
+{% with banner=banners.0 %}
+<section class="vv-hero{% if not banner.image %} vv-hero--plain{% endif %}">
+    {% if banner.image %}
+      <img class="vv-hero__img" src="{{ banner.image.url }}" alt="" aria-hidden="true" loading="eager">
+    {% endif %}
+{% endwith %}
+  <div class="vv-hero__scrim"></div>
+  <div class="vv-hero__copy">
+    <p class="vv-hero__eyebrow">Колекція 2026</p>
+    {% if banners.0.title %}
+      <h1 class="vv-hero__title">{{ banners.0.title }}</h1>
+    {% else %}
+      <h1 class="vv-hero__title">{{ site_settings.site_name }}</h1>
+    {% endif %}
+    <a class="vv-btn vv-btn--hero" href="{% url 'catalog:list' slug='wedding' %}">Переглянути</a>
+  </div>
+</section>
+
+<section class="vv-pad vv-section" id="bestsellers">
+  <div class="vv-home-head reveal">
+    <div>
+      <p class="vv-eyebrow vv-mb-3">Весільні сукні</p>
+      <h2 class="vv-serif vv-mb-0">Бестселери</h2>
+    </div>
+    <a class="vv-link" href="{% url 'catalog:list' slug='wedding' %}">Усі моделі</a>
+  </div>
+  {% if featured_products %}
+    {% include "catalog/partials/grid.html" with products=featured_products grid_cols=featured_grid_cols %}
+  {% else %}
+    <div class="reveal">{% include "partials/stub_notice.html" with message="Бестселери зʼявляться після товарів з is_featured у Catalog." %}</div>
+  {% endif %}
+</section>
+
+<section class="vv-pad vv-b2b" id="b2b">
+  <div class="vv-b2b__inner reveal">
+    <div class="vv-b2b__copy">
+      <p class="vv-eyebrow vv-mb-3">B2B</p>
+      <h2 class="vv-serif vv-mb-3">Ексклюзивні ціни для оптових партнерів</h2>
+      <p class="fw-light vv-mb-0">Власне виробництво, гнучкі умови та підтримка на кожному етапі.</p>
+    </div>
+    <a class="vv-btn vv-btn--solid" href="{% url 'content:partnership' %}">Стати партнером</a>
+  </div>
+</section>
+
+<section class="vv-section" id="couture">
+  <div class="vv-pad vv-mb-5 vv-pb-3 reveal">
+    <p class="vv-eyebrow vv-mb-3">Couture</p>
+    <h2 class="vv-serif vv-mb-3">Вечірні сукні</h2>
+    <p class="fw-light vv-mb-0">Сукні, що створюються вручну — від першого ескізу до фінальної примірки.</p>
+  </div>
+  <div class="vv-couture-media reveal">
+    {% if evening_shots %}
+      {% for product in evening_shots %}
+        <a class="vv-couture-media__shot" href="{% url 'catalog:detail' slug=product.slug %}" aria-label="{{ product.name }}">
+          {% with img=product.get_main_image %}
+            {% if img %}
+              <img src="{{ img.image.url }}" alt="{{ img.alt|default:product.name }}" width="960" height="1200" loading="lazy">
+            {% endif %}
+          {% endwith %}
+        </a>
+      {% endfor %}
+    {% else %}
+      <a class="vv-couture-media__shot" href="{% url 'catalog:list' slug='evening' %}" aria-label="Вечірні сукні"></a>
+      <a class="vv-couture-media__shot" href="{% url 'catalog:list' slug='evening' %}" aria-label="Вечірні сукні couture"></a>
+    {% endif %}
+  </div>
+  <div class="vv-couture-cta reveal">
+    <a class="vv-btn" href="{% url 'catalog:list' slug='evening' %}">Дивитися колекцію</a>
+  </div>
+</section>
+
+{% if trunk_shows %}
+<section class="vv-pad vv-events vv-section" id="events">
+  <div class="vv-events__head reveal">
+    <div>
+      <p class="vv-eyebrow vv-events__eyebrow vv-mb-3">Trunk Shows</p>
+      <h2 class="vv-serif vv-mb-0">Події</h2>
+    </div>
+    <p class="vv-events__intro fw-light vv-mb-0">Приміряйте нову колекцію на наших міжнародних показах.</p>
+  </div>
+  <div class="vv-events__grid">
+    {% for show in trunk_shows %}
+      <article class="vv-event reveal">
+        <p class="vv-event__date">{{ show.starts_at|date:"d.m.Y" }}{% if show.ends_at %} — {{ show.ends_at|date:"d.m.Y" }}{% endif %}</p>
+        <h3 class="vv-event__title">{{ show.city|default:show.title }}</h3>
+        <p class="vv-event__place">{% if show.place %}{{ show.place }}{% endif %}{% if show.place and show.title %} · {% endif %}{{ show.title }}</p>
+        <a class="vv-event__link" href="{% url 'content:contacts' %}">Записатися</a>
+      </article>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+{% endblock %}

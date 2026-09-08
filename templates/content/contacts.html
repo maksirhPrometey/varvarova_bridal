@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/pages/content.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="vv-pad content-page rise-in">
+  <h1 class="page-title">{% if page %}{{ page.title }}{% else %}Контакти{% endif %}</h1>
+  {% if is_stub %}
+    {% include "partials/stub_notice.html" with message="Додайте сторінку contacts або contacts_json у SiteSettings." %}
+  {% endif %}
+  {% if page %}
+    <div class="content-page__body">{{ page.body|safe }}</div>
+  {% endif %}
+  {% if contacts %}
+    <div class="content-contacts">
+      {% if contacts.phone %}<p>Тел.: {{ contacts.phone }}</p>{% endif %}
+      {% if contacts.email %}<p>Email: {{ contacts.email }}</p>{% endif %}
+      {% if contacts.address %}<p>{{ contacts.address }}</p>{% endif %}
+      {% if contacts.instagram %}<p>Instagram: {{ contacts.instagram }}</p>{% endif %}
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

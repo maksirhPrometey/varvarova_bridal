@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/pages/product.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="vv-pad pdp">
+  <div class="pdp__layout">
+    <div class="pdp__gallery">
+      {% for row in gallery_rows %}
+        {% if row.kind == 'pair' %}
+          <div class="pdp__gallery-row">
+            {% for image in row.images %}
+              <div class="pdp__shot pdp__shot--half">
+                <img src="{{ image.image.url }}" alt="{{ image.alt|default:product.name }}" loading="lazy">
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          {% for image in row.images %}
+            <div class="pdp__shot">
+              <img src="{{ image.image.url }}" alt="{{ image.alt|default:product.name }}" loading="{% if forloop.first and forloop.parentloop.first %}eager{% else %}lazy{% endif %}">
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% empty %}
+        <div class="pdp__shot"></div>
+      {% endfor %}
+    </div>
+
+    <div class="pdp__info rise-in">
+      <nav class="vv-crumbs vv-flex vv-items-center vv-gap-2 vv-mb-5" aria-label="breadcrumb">
+        <a href="{% url 'content:home' %}">Головна</a>
+        <span>/</span>
+        {% if product.category %}
+          <a href="{% url 'catalog:list' slug=product.category.slug %}">{{ product.category.name }}</a>
+          <span>/</span>
+        {% endif %}
+        <span>{{ product.name }}</span>
+      </nav>
+
+      <p class="vv-eyebrow vv-mb-3">{{ product.sku }}</p>
+      <h1 class="vv-serif pdp__title vv-mb-3">{{ product.name }}</h1>
+      <p class="pdp__price vv-mb-0">{{ product.price_uah|floatformat:0 }} грн</p>
+
+      {% if product.short_description %}
+        <p class="pdp__desc">{{ product.short_description }}</p>
+      {% endif %}
+
+      {% if attributes %}
+        <dl class="pdp__attrs">
+          {% for attr in attributes %}
+            <dt>{{ attr.attribute.name }}</dt>
+            <dd>{{ attr.value }}</dd>
+          {% endfor %}
+        </dl>
+      {% endif %}
+
+      {% if product.stock_qty > 0 %}
+        {% include "catalog/partials/pdp_cart_cta.html" with cta_id="pdp-cart-add" extra_class="pdp__cta pdp__cta--desktop" %}
+        <p class="pdp__note">Доставка та примірка — після оформлення замовлення.</p>
+      {% else %}
+        <div class="pdp__cta pdp__cta--desktop">
+          {% include "catalog/partials/wishlist_button.html" with btn_class="vv-icon-btn" svg_size=18 %}
+        </div>
+        <p class="pdp__note">Наразі немає в наявності.</p>
+      {% endif %}
+
+      <div class="pdp__acc">
+        {% if product.description %}
+          <details open>
+            <summary>Опис</summary>
+            <div class="pdp__acc-body">{{ product.description|safe }}</div>
+          </details>
+        {% endif %}
+        <details>
+          <summary>Доставка</summary>
+          <div class="pdp__acc-body"><a href="{% url 'content:delivery' %}">Умови доставки та повернення</a></div>
+        </details>
+        <details>
+          <summary>Догляд</summary>
+          <div class="pdp__acc-body"><a href="{% url 'content:care' %}">Рекомендації з догляду</a></div>
+        </details>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if product.stock_qty > 0 %}
+  {% include "catalog/partials/pdp_cart_cta.html" with cta_id="pdp-cart-add-mobile" extra_class="pdp-mobile-cta is-visible" %}
+{% else %}
+  <div class="pdp-mobile-cta is-visible">
+    {% include "catalog/partials/wishlist_button.html" with btn_class="vv-icon-btn" svg_size=18 %}
+  </div>
+{% endif %}
+{% endblock %}

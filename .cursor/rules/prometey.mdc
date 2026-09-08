@@ -1,0 +1,25 @@
+---
+description: PrometeyLabs vault — база знань, скіли і Second Brain для Varvarova
+alwaysApply: true
+---
+
+# Prometey Vault
+
+Корінь бази (iCloud, цей Mac):
+
+`/Users/olegbonislavskyi/Library/Mobile Documents/com~apple~CloudDocs/Prometey_vault`
+
+Якщо шлях недоступний — шукай каталог `Prometey_vault` (iCloud / локальна копія). Далі всі шляхи скілів **відносні від кореня vault**, не `/Users/...`.
+
+1. Перед задачею прочитай `{vault}/CLAUDE.md` — заборони + каталог скілів + Крок 2/6.
+2. Скіли: `{vault}/05_System/Skills/`. `/skill X` = файл `X.md` (не frontmatter `name`).
+3. Second Brain: `{vault}/02_Second_Brain/` — лише trade-off. ERR / один Prevent → `django_debug_skill`, не zettel.
+4. Цей репо = монобренд **Varvarova** (весільні/вечірні сукні). Design-скіл: `shop_design`. Контент лише UK. Схема БД: `docs/tables.md` (Variant B). Не пропонувати React/Vue/SPA.
+
+За тригером (не читати все одразу): `shop_design`, `project_structure`, `django_models_from_schema_skill`, `ecommerce_db_schema_skill`, `ecommerce_business_logic_skill`, `guest_wishlist_merge_skill`, `novaposhta_skill`, `liqpay_skill`, `product_grid_skill`, `card_skill`, `shop_security_skill`, `django_security_skill`, `django-static-architecture`, `luxury_motion_skill`, `django_debug_skill`, `qa_hooks_skill`, `design_rules_skill`, `pre_delivery_checklist_skill`, `second_brain_skill`.
+
+Не в MVP (lock зі схеми): CRM, 1С, feeds, Checkbox, dual pricing, `*_uk`/`*_ru`.
+
+Команди `~` (без пробілу): `~s` → `design_rules_skill` + `shop_design`; `~st` → `project_structure`; `~sq` → `django_security_skill` + `shop_security_skill`. `~` + пробіл — повний цикл з `CLAUDE.md`.
+
+Заборони з `CLAUDE.md` діють і тут: без `!important`, без `style=""`/`onclick=""`, без md-звітів у репо, секрети лише в `.env`.

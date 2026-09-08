@@ -1,0 +1,19 @@
+<form
+  id="{{ cta_id }}"
+  class="{{ extra_class }}"
+  method="post"
+  action="{% url 'commerce:cart_add' %}"
+  data-qa="cart-add"
+  hx-post="{% url 'commerce:cart_add' %}"
+  hx-swap="none"
+  {% if oob %}hx-swap-oob="outerHTML"{% endif %}
+>
+  {% csrf_token %}
+  <input type="hidden" name="product_id" value="{{ product.pk }}">
+  <input type="hidden" name="qty" value="1">
+  <button type="submit" class="vv-cta">{% if cart_added %}Додано{% else %}Додати в кошик{% endif %}</button>
+  {% include "catalog/partials/wishlist_button.html" with btn_class="vv-icon-btn" svg_size=18 %}
+  {% if cart_error %}
+    <p class="pdp__cart-error" role="alert">{{ cart_error }}</p>
+  {% endif %}
+</form>

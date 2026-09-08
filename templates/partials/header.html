@@ -1,0 +1,46 @@
+<header class="site-header" data-site-header>
+  <div class="site-header__inner">
+    <a class="site-header__logo" href="{% url 'content:home' %}">{{ site_settings.site_name|default:"Varvarova" }}</a>
+    <nav class="site-nav" aria-label="Головна навігація">
+      <a href="{% url 'catalog:list' slug='wedding' %}">{{ nav_wedding.name|default:"Весільні сукні" }}</a>
+      <a href="{% url 'catalog:list' slug='evening' %}">{{ nav_evening.name|default:"Вечірні сукні" }}</a>
+      <a href="{% url 'catalog:list' slug='accessories' %}">{{ nav_accessories.name|default:"Аксесуари" }}</a>
+      <a href="{% url 'catalog:list' slug='lingerie' %}">Білизна</a>
+      <a href="{% url 'content:about' %}">Про бренд</a>
+      <a href="{% url 'content:salons' %}">Салони</a>
+      <a href="{% url 'content:blog_list' %}">Блог</a>
+    </nav>
+    <div class="site-header__utils">
+      <a href="{% url 'catalog:wishlist' %}" data-qa="favorites">Улюблене <span data-wishlist-count>{% if wishlist_count %}{{ wishlist_count }}{% endif %}</span></a>
+      <a href="{% if request.user.is_authenticated %}{% url 'authentication:account' %}{% else %}{% url 'authentication:login' %}{% endif %}">Акаунт</a>
+      <a class="site-header__cart" href="{% url 'commerce:cart' %}">Кошик {% include "commerce/partials/_cart_count.html" %}</a>
+      <button class="site-header__burger" type="button" data-nav-toggle data-qa="menu-open" aria-expanded="false" aria-controls="site-drawer" aria-label="Меню">
+        <svg width="18" height="12" viewBox="0 0 18 12" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">
+          <path d="M0 1h18M0 6h18M0 11h18"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</header>
+<div class="site-drawer-backdrop" data-nav-backdrop hidden></div>
+<nav class="site-drawer" id="site-drawer" data-site-drawer aria-label="Мобільне меню">
+  <div class="site-drawer__top">
+    <a class="site-header__logo" href="{% url 'content:home' %}">{{ site_settings.site_name|default:"Varvarova" }}</a>
+    <button class="site-drawer__close" type="button" data-nav-close aria-label="Закрити меню">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">
+        <path d="M2 2l12 12M14 2 2 14"/>
+      </svg>
+    </button>
+  </div>
+  <a href="{% url 'catalog:list' slug='wedding' %}">Весільні сукні</a>
+  <a href="{% url 'catalog:list' slug='evening' %}">Вечірні сукні</a>
+  <a href="{% url 'catalog:list' slug='accessories' %}">Аксесуари</a>
+  <a href="{% url 'catalog:list' slug='lingerie' %}">Білизна</a>
+  <a href="{% url 'content:about' %}">Про бренд</a>
+  <a href="{% url 'content:salons' %}">Салони</a>
+  <a href="{% url 'content:blog_list' %}">Блог</a>
+  <a href="{% url 'content:partnership' %}">Стати партнером</a>
+  <a href="{% url 'catalog:wishlist' %}" data-qa="favorites">Улюблене <span data-wishlist-count>{% if wishlist_count %}{{ wishlist_count }}{% endif %}</span></a>
+  <a href="{% if request.user.is_authenticated %}{% url 'authentication:account' %}{% else %}{% url 'authentication:login' %}{% endif %}">Акаунт</a>
+  <a href="{% url 'commerce:cart' %}">Кошик</a>
+</nav>

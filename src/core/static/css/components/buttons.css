@@ -1,0 +1,124 @@
+.vv-btn {
+  display: inline-block;
+  padding: 17px 46px;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: 1px solid var(--vv-ink);
+  color: var(--vv-ink);
+  background: transparent;
+  transition: background var(--duration-ui) var(--ease-out), color var(--duration-ui) var(--ease-out), transform var(--duration-fast) var(--ease-out);
+}
+
+.vv-btn:hover {
+  background: var(--vv-ink);
+  color: var(--vv-white);
+}
+
+.vv-btn:active,
+.vv-cta:active,
+.vv-submit:active,
+.vv-book:active {
+  transform: scale(0.97);
+}
+
+.vv-btn--light {
+  border-color: rgba(255, 255, 255, 0.7);
+  color: #fff;
+}
+
+.vv-btn--light:hover {
+  background: #fff;
+  color: var(--vv-ink);
+}
+
+.vv-btn--hero {
+  border-color: rgba(255, 255, 255, 0.45);
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.vv-btn--hero:hover,
+.vv-btn--hero:focus-visible {
+  background: #fff;
+  color: var(--vv-ink);
+}
+
+.vv-btn--hero:focus-visible {
+  outline-color: #fff;
+}
+
+.vv-btn--solid {
+  background: var(--vv-ink);
+  color: #fff;
+}
+
+.vv-btn--solid:hover {
+  background: var(--vv-black);
+  color: #fff;
+}
+
+.vv-cta {
+  flex: 1;
+  padding: 21px 24px;
+  background: var(--vv-ink);
+  color: #fff;
+  border: 0;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  min-height: 58px;
+}
+
+.vv-cta:hover {
+  background: var(--vv-black);
+  color: #fff;
+}
+
+.vv-icon-btn {
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--vv-hair);
+  transition: border-color var(--duration-ui) var(--ease-out), transform var(--duration-fast) var(--ease-out);
+}
+
+.vv-icon-btn:hover {
+  border-color: var(--vv-ink);
+}
+
+.vv-submit {
+  padding: 22px 62px;
+  background: var(--vv-ink);
+  color: #fff;
+  border: 0;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  transition: background var(--duration-ui) var(--ease-out), transform var(--duration-fast) var(--ease-out);
+}
+
+.vv-submit:hover {
+  background: var(--vv-black);
+  color: #fff;
+}
+
+.vv-book {
+  display: inline-block;
+  padding: 13px 26px;
+  border: 1px solid var(--vv-ink);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--vv-ink);
+  transition: background var(--duration-ui) var(--ease-out), color var(--duration-ui) var(--ease-out), transform var(--duration-fast) var(--ease-out);
+}
+
+.vv-book:hover {
+  background: var(--vv-ink);
+  color: #fff;
+}

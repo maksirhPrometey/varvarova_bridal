@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/pages/content.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="vv-pad content-page rise-in">
+  <h1 class="page-title">Блог</h1>
+  {% if is_stub %}
+    {% include "partials/stub_notice.html" with message="Записів блогу ще немає. Опублікуйте перший пост у Content → Блог." %}
+  {% endif %}
+  <div class="content-list">
+    {% for post in posts %}
+      <article>
+        <p class="content-meta">{{ post.published_at|date:"d.m.Y" }}</p>
+        <h2><a href="{% url 'content:blog_detail' slug=post.slug %}">{{ post.title }}</a></h2>
+        {% if post.excerpt %}<p>{{ post.excerpt }}</p>{% endif %}
+      </article>
+    {% empty %}
+      <p class="fw-light">Тут будуть новини бренду та редакційні матеріали.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/pages/content.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="vv-pad content-page rise-in">
+  <h1 class="page-title">FAQ</h1>
+  {% if is_stub %}
+    {% include "partials/stub_notice.html" with message="Питання зʼявляться після публікації FAQ в адмінці." %}
+  {% endif %}
+  <div class="faq-list">
+    {% for item in items %}
+      <details class="faq-item reveal"{% if forloop.first %} open{% endif %}>
+        <summary class="faq-item__question">
+          <span>{{ item.question }}</span>
+          <span class="faq-item__toggle" aria-hidden="true"></span>
+        </summary>
+        <div class="faq-item__answer">
+          <div class="faq-item__answer-inner">{{ item.answer|linebreaks }}</div>
+        </div>
+      </details>
+    {% empty %}
+      <p class="fw-light">Приклад: «Як записатися на примірку?» — відповідь додасте в Content → FAQ.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

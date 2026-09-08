@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/pages/about.css' %}">
+<link rel="stylesheet" href="{% static 'css/pages/content.css' %}">
+{% endblock %}
+
+{% block content %}
+{% if page.slug == 'about' %}
+<section class="vv-pad about-hero rise-in">
+  <p class="vv-eyebrow vv-mb-5">Філософія</p>
+  <h1 class="vv-serif">{{ page.title }}</h1>
+  <div class="about-hero__lede">{{ page.body|safe }}</div>
+  {% if is_stub %}
+    {% include "partials/stub_notice.html" with message="Це тимчасова заглушка. Опублікуйте сторінку about в адмінці." %}
+  {% endif %}
+</section>
+{% else %}
+<section class="vv-pad content-page rise-in">
+  <h1 class="page-title">{{ page.title }}</h1>
+  <div class="content-page__body">{{ page.body|safe }}</div>
+  {% if is_stub %}
+    {% include "partials/stub_notice.html" with message="Тимчасова заглушка — опублікуйте цю сторінку в Content → Сторінки." %}
+  {% endif %}
+</section>
+{% endif %}
+{% endblock %}

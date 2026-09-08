@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Inter:wght@200;300;400;500&display=swap" rel="stylesheet">
+<script src="./image-slot.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #FFFFFF; color: #222222; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: #222222; text-decoration: none; }
+  a:hover { color: #8A8A8A; }
+  @media (max-width: 1000px) {
+    #vv-cart { grid-template-columns: minmax(0,1fr) !important; gap: 48px !important; }
+    #vv-summary { position: static !important; }
+    #vv-nav-links { display: none !important; }
+  }
+  @media (max-width: 620px) {
+    #vv-cart .vv-row { grid-template-columns: 108px minmax(0,1fr) !important; }
+    #vv-cart .vv-row-right { grid-column: 2 !important; align-items: flex-start !important; text-align: left !important; }
+  }
+  @media (max-width: 991px) {
+    #vv-nav-links { display: none !important; }
+    #vv-burger-btn { display: flex !important; }
+    #vv-burger:checked ~ #vv-drawer { display: block !important; }
+    #vv-head-right a:not(:last-child) { display: none; }
+    #vv-page > header > div { padding: 16px 20px !important; position: relative; }
+    #vv-burger-btn { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); width: 18px; height: 12px; }
+    #vv-head-right { padding-right: 34px; }
+  }
+  @media (max-width: 767px) {
+    #vv-page > section, #vv-page > div, #vv-page > footer, #vv-page > main {
+      padding-left: 20px !important; padding-right: 20px !important;
+    }
+    #vv-page img, #vv-page image-slot { max-width: 100%; }
+  }
+</style>
+</helmet>
+
+<div id="vv-page" style="max-width: 100%; overflow-x: hidden;">
+
+  <header data-h="1" style="position: sticky; top: 0; z-index: 40; background: rgba(255,255,255,0.94); backdrop-filter: blur(10px); border-bottom: 1px solid #EFEFEF;">
+    <input type="checkbox" id="vv-burger" style="display: none;">
+    <div style="display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 32px; padding: 22px 48px;">
+      <a href="Varvarova%20Home.dc.html" style="font-family: 'Playfair Display', serif; font-size: 20px; letter-spacing: 0.32em; white-space: nowrap; padding-left: 0.32em;">VARVAROVA</a>
+      <label for="vv-burger" id="vv-burger-btn" aria-label="Меню" style="display: none; align-items: center; cursor: pointer;"><svg width="18" height="12" viewBox="0 0 18 12" fill="none" stroke="#222222" stroke-width="1.2"><path d="M0 1h18M0 6h18M0 11h18"/></svg></label>
+      <nav id="vv-nav-links" style="display: flex; justify-content: center; gap: 24px; font-size: 10.5px; letter-spacing: 0.13em; text-transform: uppercase; white-space: nowrap;">
+        <a href="Varvarova%20Catalog.dc.html">Весільні сукні</a>
+        <a href="Varvarova%20Catalog.dc.html">Вечірні сукні</a>
+        <a href="Varvarova%20About.dc.html">Про бренд</a>
+        <a href="Varvarova%20Boutiques.dc.html">Салони</a>
+        <a href="Varvarova%20B2B.dc.html">Стати партнером</a>
+      </nav>
+      <div id="vv-head-right" style="display: flex; gap: 22px; justify-content: flex-end; align-items: center; font-size: 10.5px; letter-spacing: 0.13em; text-transform: uppercase; white-space: nowrap;">
+        <a href="Varvarova%20Account.dc.html">Улюблене</a>
+        <a href="Varvarova%20Account.dc.html">Акаунт</a>
+        <a href="Varvarova%20Cart.dc.html" style="color: #222222; border-bottom: 1px solid #222222; padding-bottom: 4px;">Кошик ({{ count }})</a>
+      </div>
+    </div>
+    <div id="vv-drawer" style="display: none; border-top: 1px solid #EFEFEF; padding: 8px 20px 22px;"><a href="Varvarova%20Catalog.dc.html" style="display: block; padding: 15px 0; border-bottom: 1px solid #F2F2F2; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;">Весільні сукні</a><a href="Varvarova%20Catalog.dc.html" style="display: block; padding: 15px 0; border-bottom: 1px solid #F2F2F2; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;">Вечірні сукні</a><a href="Varvarova%20Catalog.dc.html" style="display: block; padding: 15px 0; border-bottom: 1px solid #F2F2F2; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;">Кутюр</a><a href="Varvarova%20About.dc.html" style="display: block; padding: 15px 0; border-bottom: 1px solid #F2F2F2; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;">Про бренд</a><a href="Varvarova%20Boutiques.dc.html" style="display: block; padding: 15px 0; border-bottom: 1px solid #F2F2F2; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;">Салони</a><a href="Varvarova%20B2B.dc.html" style="display: block; padding: 15px 0; border-bottom: 1px solid #F2F2F2; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;">Стати партнером</a><a href="Varvarova%20Account.dc.html" style="display: block; padding: 15px 0; border-bottom: 1px solid #F2F2F2; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;">Wishlist</a><a href="Varvarova%20Cart.dc.html" style="display: block; padding: 15px 0; border-bottom: 1px solid #F2F2F2; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;">Кошик</a></div>
+  </header>
+
+  <section style="padding: 84px 48px 20px; text-align: center;">
+    <p style="margin: 0 0 20px; font-size: 10px; letter-spacing: 0.32em; text-transform: uppercase; color: #8A8A8A;">{{ countLabel }}</p>
+    <h1 style="margin: 0; font-family: 'Playfair Display', serif; font-weight: 400; font-size: 52px; letter-spacing: 0.03em; line-height: 1.1;">Мій кошик</h1>
+  </section>
+
+  <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
+    <section style="padding: 90px 48px 180px; display: flex; flex-direction: column; align-items: center; text-align: center;">
+      <div style="width: 108px; height: 108px; border-radius: 50%; background: #F5F5F5; display: grid; place-items: center; margin-bottom: 40px;">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#8A8A8A" stroke-width="1.1"><path d="M4 7h16l-1.4 12.2a2 2 0 0 1-2 1.8H7.4a2 2 0 0 1-2-1.8z"/><path d="M8.5 7V5.6a3.5 3.5 0 0 1 7 0V7"/></svg>
+      </div>
+      <h2 style="margin: 0 0 16px; font-family: 'Playfair Display', serif; font-weight: 400; font-size: 30px; letter-spacing: 0.02em;">Ваш кошик порожній</h2>
+      <p style="margin: 0 0 44px; max-width: 380px; font-size: 14px; line-height: 1.9; font-weight: 300; color: #555555;">Оберіть сукню з нової колекції — або збережіть улюблені моделі, щоб повернутися до них пізніше.</p>
+      <a href="Varvarova%20Catalog.dc.html" style="display: inline-block; padding: 20px 56px; background: #222222; color: #FFFFFF; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; transition: background 0.35s ease;" style-hover="background: #000000; color: #FFFFFF;">Повернутися до покупок</a>
+    </section>
+  </sc-if>
+
+  <sc-if value="{{ hasItems }}" hint-placeholder-val="{{ true }}">
+    <div id="vv-cart" style="display: grid; grid-template-columns: minmax(0, 2.35fr) minmax(0, 1fr); gap: 72px; padding: 60px 48px 140px; align-items: start;">
+
+      <div id="cart-items">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 20px; padding-bottom: 20px; border-bottom: 1px solid #222222;">
+          <p style="margin: 0; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: #8A8A8A;">Товар</p>
+          <p style="margin: 0; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: #8A8A8A;">Сума</p>
+        </div>
+
+        <sc-for list="{{ items }}" as="it" hint-placeholder-count="3">
+          <div class="vv-row" style="display: grid; grid-template-columns: 132px minmax(0, 1fr) auto; gap: 32px; padding: 36px 0; border-bottom: 1px solid #EFEFEF; align-items: start;">
+            <div style="position: relative; aspect-ratio: 3 / 4.1; background: #F5F5F5;">
+              <image-slot id="{{ it.slot }}" shape="rect" fit="cover" placeholder="{{ it.name }}"></image-slot>
+            </div>
+            <div>
+              <h3 style="margin: 0 0 10px; font-family: 'Playfair Display', serif; font-weight: 400; font-size: 22px; letter-spacing: 0.05em;">{{ it.name }}</h3>
+              <p style="margin: 0 0 22px; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #8A8A8A;">{{ it.meta }}</p>
+              <div style="display: flex; align-items: center; gap: 26px; flex-wrap: wrap;">
+                <div style="display: flex; align-items: center; border: 1px solid #DDDDDD;">
+                  <button aria-label="Менше" onClick="{{ it.dec }}" style="width: 40px; height: 40px; display: grid; place-items: center; background: none; border: none; font-family: 'Inter', sans-serif; font-size: 15px; color: #222222; cursor: pointer;" style-hover="background: #F5F5F5;">−</button>
+                  <span style="min-width: 34px; text-align: center; font-size: 13px; letter-spacing: 0.06em;">{{ it.qty }}</span>
+                  <button aria-label="Більше" onClick="{{ it.inc }}" style="width: 40px; height: 40px; display: grid; place-items: center; background: none; border: none; font-family: 'Inter', sans-serif; font-size: 15px; color: #222222; cursor: pointer;" style-hover="background: #F5F5F5;">+</button>
+                </div>
+                <button onClick="{{ it.remove }}" style="display: flex; align-items: center; gap: 9px; background: none; border: none; padding: 0; font-family: 'Inter', sans-serif; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #8A8A8A; cursor: pointer;" style-hover="color: #222222;">
+                  <svg width="9" height="9" viewBox="0 0 9 9" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M1 1l7 7M8 1l-7 7"/></svg>
+                  <span>Видалити</span>
+                </button>
+              </div>
+            </div>
+            <div class="vv-row-right" style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px; text-align: right; white-space: nowrap;">
+              <p style="margin: 0; font-size: 14px; letter-spacing: 0.06em;">{{ it.total }}</p>
+              <sc-if value="{{ it.showUnit }}" hint-placeholder-val="{{ false }}">
+                <p style="margin: 0; font-size: 11px; letter-spacing: 0.08em; color: #8A8A8A;">{{ it.unit }} × {{ it.qty }}</p>
+              </sc-if>
+            </div>
+          </div>
+        </sc-for>
+
+        <div style="padding-top: 36px;">
+          <a href="Varvarova%20Catalog.dc.html" style="font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: #8A8A8A; border-bottom: 1px solid #DDDDDD; padding-bottom: 5px;">← Продовжити покупки</a>
+        </div>
+      </div>
+
+      <aside id="vv-summary" style="position: sticky; top: 110px; background: #F5F5F5; padding: 44px 40px;">
+        <h2 style="margin: 0 0 34px; font-family: 'Playfair Display', serif; font-weight: 400; font-size: 24px; letter-spacing: 0.05em;">Разом</h2>
+
+        <div style="display: flex; flex-direction: column; gap: 18px; padding-bottom: 26px; border-bottom: 1px solid #E2E2E2;">
+          <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 16px;">
+            <span style="font-size: 13px; font-weight: 300; color: #555555;">Проміжна сума</span>
+            <span style="font-size: 13px; letter-spacing: 0.04em;">{{ subtotal }}</span>
+          </div>
+          <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 16px;">
+            <span style="font-size: 13px; font-weight: 300; color: #555555;">Доставка</span>
+            <span style="font-size: 13px; letter-spacing: 0.04em;">{{ shipping }}</span>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding: 26px 0 34px;">
+          <span style="font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase;">Загалом</span>
+          <span style="font-family: 'Playfair Display', serif; font-size: 26px; letter-spacing: 0.03em;">{{ total }}</span>
+        </div>
+
+        <button style="width: 100%; padding: 22px 20px; background: #222222; color: #FFFFFF; border: none; font-family: 'Inter', sans-serif; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; cursor: pointer; transition: background 0.35s ease;" style-hover="background: #000000;">Оформити замовлення</button>
+
+        <p style="margin: 22px 0 0; font-size: 11px; line-height: 1.8; font-weight: 300; color: #8A8A8A;">Безпечна оплата. Податки враховано на етапі оформлення.</p>
+
+        <div style="margin-top: 34px; padding-top: 26px; border-top: 1px solid #E2E2E2; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+          <div style="width: 46px; height: 30px; border: 1px solid #DCDCDC; background: #FFFFFF; display: grid; place-items: center; font-family: 'Playfair Display', serif; font-style: italic; font-size: 12px; letter-spacing: 0.04em; color: #555555;">VISA</div>
+          <div style="width: 46px; height: 30px; border: 1px solid #DCDCDC; background: #FFFFFF; display: grid; place-items: center;">
+            <svg width="30" height="18" viewBox="0 0 30 18"><circle cx="11" cy="9" r="6.4" fill="none" stroke="#555555" stroke-width="1.1"/><circle cx="19" cy="9" r="6.4" fill="none" stroke="#555555" stroke-width="1.1"/></svg>
+          </div>
+          <div style="width: 46px; height: 30px; border: 1px solid #DCDCDC; background: #FFFFFF; display: grid; place-items: center; font-size: 10px; letter-spacing: 0.04em; color: #555555;">&#63743;Pay</div>
+          <div style="width: 46px; height: 30px; border: 1px solid #DCDCDC; background: #FFFFFF; display: grid; place-items: center; font-size: 9px; letter-spacing: 0.06em; color: #555555;">G Pay</div>
+        </div>
+      </aside>
+
+    </div>
+  </sc-if>
+
+  <footer style="border-top: 1px solid #EFEFEF; padding: 56px 48px; display: flex; align-items: center; justify-content: space-between; gap: 32px; flex-wrap: wrap;">
+    <p style="margin: 0; font-family: 'Playfair Display', serif; font-size: 16px; letter-spacing: 0.34em;">VARVAROVA</p>
+    <p style="margin: 0; font-size: 11px; letter-spacing: 0.1em; color: #8A8A8A;">© 2026 Varvarova · Львів, Україна</p>
+  </footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:1200}}">
+const INITIAL = [
+  { id: 1, name: 'Céline',  size: '38', color: 'Айворі', price: 1890, kind: 'Весільна сукня' },
+  { id: 2, name: 'Aurore',  size: 'One size', color: 'Айворі', price: 390, kind: 'Кейп' },
+  { id: 3, name: 'Lumina',  size: 'S', color: 'Білий', price: 165, kind: 'Боді' },
+];
+
+const plural = (n, one, few, many) => {
+  const m10 = n % 10, m100 = n % 100;
+  if (m10 === 1 && m100 !== 11) return one;
+  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
+  return many;
+};
+
+const eur = n => '€' + n.toLocaleString('fr-FR').replace(/\u202f|\u00a0/g, ' ');
+
+class Component extends DCLogic {
+  state = { items: INITIAL.map(i => ({ ...i, qty: 1 })) };
+
+  setQty(id, d) {
+    this.setState(s => ({
+      items: s.items.map(i => i.id === id ? { ...i, qty: Math.max(1, i.qty + d) } : i),
+    }));
+  }
+
+  renderVals() {
+    const items = this.state.items;
+    const count = items.reduce((n, i) => n + i.qty, 0);
+    const sub = items.reduce((n, i) => n + i.price * i.qty, 0);
+    const ship = sub >= 1000 ? 0 : 45;
+    return {
+      count,
+      countLabel: count === 0 ? 'Порожньо' : count + ' ' + plural(count, 'позиція', 'позиції', 'позицій'),
+      isEmpty: items.length === 0,
+      hasItems: items.length > 0,
+      restore: () => this.setState({ items: INITIAL.map(i => ({ ...i, qty: 1 })) }),
+      items: items.map(i => ({
+        name: i.name,
+        qty: i.qty,
+        meta: i.kind + ' · Розмір ' + i.size + ' · ' + i.color,
+        slot: 'vv-cart-' + i.id,
+        unit: eur(i.price),
+        total: eur(i.price * i.qty),
+        showUnit: i.qty > 1,
+        inc: () => this.setQty(i.id, 1),
+        dec: () => this.setQty(i.id, -1),
+        remove: () => this.setState(s => ({ items: s.items.filter(x => x.id !== i.id) })),
+      })),
+      subtotal: eur(sub),
+      shipping: ship === 0 ? 'Безкоштовно' : eur(ship),
+      total: eur(sub + ship),
+    };
+  }
+}
+</script>
+</body>
+</html>

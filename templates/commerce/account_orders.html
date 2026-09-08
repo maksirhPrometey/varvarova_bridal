@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/pages/account.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="vv-pad account-page">
+  <div class="account-layout">
+    {% include "partials/account_nav.html" %}
+    <div class="account-main rise-in">
+      <h1 class="page-title">Замовлення</h1>
+      {% if orders %}
+        <ul class="order-list">
+          {% for order in orders %}
+            <li>
+              <a class="order-row" href="{% url 'commerce:account_order_detail' number=order.number %}">
+                <span class="order-row__num">{{ order.number }}</span>
+                <span class="order-row__meta">{{ order.created_at|date:"d.m.Y" }} · {{ order.get_status_display }}</span>
+                <span class="order-row__sum">{{ order.total_uah|floatformat:0 }} грн</span>
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="fw-light">Замовлень ще немає. Оформлення зʼявиться разом із кошиком.</p>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

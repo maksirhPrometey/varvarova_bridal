@@ -1,0 +1,16 @@
+<aside class="vv-side">
+  <div class="vv-side__head">
+    <p class="vv-eyebrow vv-mb-2">Акаунт</p>
+    <p class="vv-serif vv-side__name">{{ request.user.get_full_name|default:request.user.email }}</p>
+    <p class="vv-side__email">{{ request.user.email }}</p>
+  </div>
+  <nav class="vv-side__nav" aria-label="Кабінет">
+    <a href="{% url 'authentication:account' %}"{% if account_nav == 'profile' %} class="is-active" aria-current="page"{% endif %}>Профіль</a>
+    <a href="{% url 'commerce:account_orders' %}"{% if account_nav == 'orders' %} class="is-active" aria-current="page"{% endif %}>Замовлення</a>
+    <a href="{% url 'catalog:wishlist' %}"{% if account_nav == 'wishlist' %} class="is-active" aria-current="page"{% endif %} data-qa="favorites">Улюблене</a>
+  </nav>
+  <form class="vv-side__logout" method="post" action="{% url 'authentication:logout' %}">
+    {% csrf_token %}
+    <button type="submit" class="vv-link">Вийти</button>
+  </form>
+</aside>

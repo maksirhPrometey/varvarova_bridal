@@ -1,0 +1,46 @@
+{% load static %}
+<!doctype html>
+<html lang="uk"
+      data-wishlist-auth="{% if request.user.is_authenticated %}true{% else %}false{% endif %}"
+      data-wishlist-toggle-url="{% url 'catalog:wishlist_toggle' %}"
+      data-wishlist-merge-url="{% url 'catalog:wishlist_merge' %}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="htmx-config" content='{"includeIndicatorStyles":false}'>
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <title>{% block title %}{{ page_title|default:site_settings.site_name }}{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/variables.css' %}">
+  <link rel="stylesheet" href="{% static 'css/reset.css' %}">
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'css/layout.css' %}">
+  <link rel="stylesheet" href="{% static 'css/components/nav.css' %}">
+  <link rel="stylesheet" href="{% static 'css/components/footer.css' %}">
+  <link rel="stylesheet" href="{% static 'css/components/buttons.css' %}">
+  <link rel="stylesheet" href="{% static 'css/components/cards.css' %}">
+  <link rel="stylesheet" href="{% static 'css/components/product_grid.css' %}">
+  <link rel="stylesheet" href="{% static 'css/components/forms.css' %}">
+  <link rel="stylesheet" href="{% static 'css/components/filterbar.css' %}">
+  <link rel="stylesheet" href="{% static 'css/motion.css' %}">
+  {% block page_css %}{% endblock %}
+</head>
+<body>
+  <a class="skip-link" href="#main">До змісту</a>
+  {% include "partials/header.html" %}
+  {% if messages %}
+    <div class="site-flash" role="status">
+      {% for message in messages %}
+        <p class="site-flash__item">{{ message }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+  <main id="main">{% block content %}{% endblock %}</main>
+  {% include "partials/footer.html" %}
+  <script src="{% static 'js/vendor/htmx.min.js' %}" defer></script>
+  <script src="{% static 'js/htmx-csrf.js' %}" defer></script>
+  <script src="{% static 'js/nav.js' %}" defer></script>
+  <script type="module" src="{% static 'js/modules/scroll-reveal.js' %}"></script>
+  <script type="module" src="{% static 'js/modules/wishlist.js' %}"></script>
+  {% block page_js %}{% endblock %}
+</body>
+</html>

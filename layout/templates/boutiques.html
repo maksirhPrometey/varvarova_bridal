@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+{# ============================================================
+   VARVAROVA — Boutiques locator
+   Bootstrap 5 grid + HTMX for the search / type filter.
+
+   Views expected:
+     boutiques        -> full page (this template)
+     boutiques_list   -> renders partials/_boutique_list.html only
+     appointment_form -> GET, modal body for "Записатися на примірку"
+   Context: boutiques (queryset), store_types, request.GET
+
+   Map: #vv-map is the mount point. Initialise Mapbox/Google there and
+   read the pin data from the JSON block below; each list card carries
+   data-lat/data-lng/data-id so hovering a card can pan/highlight.
+   ============================================================ #}
+
+<style>
+  :root{
+    --vv-white:#FFFFFF; --vv-pearl:#F5F5F5; --vv-ink:#222222;
+    --vv-black:#000000; --vv-mute:#8A8A8A; --vv-line:#EFEFEF;
+    --vv-hair:#DDDDDD; --vv-hair2:#E2E2E2;
+  }
+  body{ background:var(--vv-white); color:var(--vv-ink); font-family:'Inter',sans-serif; }
+  .vv-serif{ font-family:'Playfair Display',serif; font-weight:400; }
+  .vv-eyebrow{ font-size:10px; letter-spacing:.32em; text-transform:uppercase; color:var(--vv-mute); }
+  .vv-pad{ padding-left:48px; padding-right:48px; }
+  @media (max-width:767px){ .vv-pad{ padding-left:20px; padding-right:20px; } }
+
+  /* ---- Filters ---- */
+  .vv-field{ position:relative; }
+  .vv-field input, .vv-field select{
+    width:100%; padding:17px 30px 17px 2px; background:none; border:0;
+    border-bottom:1px solid var(--vv-hair); font-size:13px; letter-spacing:.06em;
+    color:var(--vv-ink); border-radius:0; outline:none; appearance:none; }
+  .vv-field select{ font-size:11px; letter-spacing:.16em; text-transform:uppercase; }
+  .vv-field input::placeholder{ color:#AAA; }
+  .vv-field .vv-field__icon{ position:absolute; right:2px; top:18px; pointer-events:none; }
+
+  /* ---- Boutique cards ---- */
+  .vv-store{ padding:30px 24px 30px 22px; margin-left:-22px; border-bottom:1px solid var(--vv-line);
+             border-left:1px solid transparent; background:transparent;
+             transition:background .3s ease, border-color .3s ease; cursor:pointer; }
+  .vv-store:hover, .vv-store.is-active{ background:var(--vv-pearl); border-left-color:var(--vv-ink); }
+  .vv-store__badge{ font-size:9px; letter-spacing:.2em; text-transform:uppercase;
+             color:var(--vv-mute); white-space:nowrap; }
+  .vv-book{ display:inline-block; padding:13px 26px; border:1px solid var(--vv-ink);
+             font-size:10px; letter-spacing:.2em; text-transform:uppercase; text-decoration:none;
+             color:var(--vv-ink); transition:background .3s ease, color .3s ease; }
+  .vv-book:hover{ background:var(--vv-ink); color:#fff; }
+  .vv-route{ font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--vv-mute);
+             border-bottom:1px solid var(--vv-hair); padding-bottom:4px; text-decoration:none; }
+
+  .vv-scroll{ max-height:62vh; overflow-y:auto; padding-right:8px; margin-right:-8px; }
+  .vv-scroll::-webkit-scrollbar{ width:3px; }
+  .vv-scroll::-webkit-scrollbar-thumb{ background:var(--vv-hair); }
+
+  /* ---- Map ---- */
+  .vv-map{ position:sticky; top:110px; height:76vh; min-height:520px;
+           background:var(--vv-pearl); overflow:hidden; }
+  .vv-map__grid{ position:absolute; inset:0; opacity:.55;
+    background-image:linear-gradient(#E6E6E6 1px,transparent 1px),
+                     linear-gradient(90deg,#E6E6E6 1px,transparent 1px);
+    background-size:88px 88px; }
+  .vv-map__note{ position:absolute; right:24px; bottom:24px; margin:0; font-size:9px;
+    letter-spacing:.18em; text-transform:uppercase; color:#B4B4B4; }
+  @media (max-width:991px){
+    .vv-map{ position:static; height:340px; min-height:0; margin-bottom:40px; }
+    .vv-scroll{ max-height:none; overflow:visible; }
+  }
+  .htmx-request .vv-scroll{ opacity:.5; transition:opacity .15s ease; }
+</style>
+
+<!-- ===================== HEADER ===================== -->
+<section class="vv-pad text-center" style="padding-top:84px; padding-bottom:64px;">
+  <p class="vv-eyebrow mb-4">Офлайн</p>
+  <h1 class="vv-serif mb-4" style="font-size:clamp(34px,5vw,52px); letter-spacing:.03em; line-height:1.1;">
+    Наші Салони
+  </h1>
+  <p class="fw-light mx-auto mb-0" style="max-width:470px; font-size:14px; line-height:1.9; color:#555;">
+    Приміряйте колекцію у 38 країнах — в офіційних бутіках Varvarova та в салонах авторизованих партнерів.
+  </p>
+</section>
+
+<!-- ===================== SPLIT LAYOUT ===================== -->
+<div class="vv-pad" style="padding-bottom:130px;">
+  <div class="row" style="--bs-gutter-x:56px;">
+
+    <!-- ---------- LEFT: filters + list (~40%) ---------- -->
+    <div class="col-12 col-lg-5 order-2 order-lg-1">
+
+      <!-- Filters: both inputs refresh #boutique-list only -->
+      <form class="d-flex flex-column gap-3 pb-4"
+            style="border-bottom:1px solid var(--vv-line);"
+            hx-get="{% url 'boutiques_list' %}"
+            hx-target="#boutique-list"
+            hx-swap="outerHTML"
+            hx-push-url="true"
+            hx-indicator="body">
+
+        <div class="vv-field">
+          <input type="search" name="q" value="{{ request.GET.q|default:'' }}"
+                 placeholder="Місто або країна"
+                 hx-trigger="keyup changed delay:350ms, search">
+          <svg class="vv-field__icon" width="15" height="15" viewBox="0 0 24 24" fill="none"
+               stroke="var(--vv-mute)" stroke-width="1.3">
+            <circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/>
+          </svg>
+        </div>
+
+        <div class="vv-field">
+          <select name="type" hx-trigger="change">
+            <option value="">Усі салони</option>
+            {% for t in store_types %}
+              <option value="{{ t.slug }}" {% if request.GET.type == t.slug %}selected{% endif %}>{{ t.label }}</option>
+            {% endfor %}
+          </select>
+          <svg class="vv-field__icon" width="9" height="6" viewBox="0 0 9 6" fill="none"
+               stroke="var(--vv-ink)" stroke-width="1.2" style="top:24px;">
+            <path d="M1 1l3.5 3.5L8 1"/>
+          </svg>
+        </div>
+      </form>
+
+      <!-- ---- HTMX target: list only ---- -->
+      <div id="boutique-list">
+        <p class="mb-2" style="margin-top:22px; font-size:10px; letter-spacing:.28em;
+                               text-transform:uppercase; color:var(--vv-mute);">
+          {{ boutiques|length }} {{ boutiques|length|pluralize:"салон,салони,салонів" }}
+        </p>
+
+        <div class="vv-scroll">
+          {% for store in boutiques %}
+            <article class="vv-store {% if forloop.first %}is-active{% endif %}"
+                     data-id="{{ store.pk }}" data-lat="{{ store.latitude }}" data-lng="{{ store.longitude }}">
+              <div class="d-flex align-items-baseline justify-content-between gap-3 mb-2">
+                <h2 class="vv-serif mb-0" style="font-size:23px; letter-spacing:.04em;">{{ store.city }}</h2>
+                <span class="vv-store__badge">{{ store.get_store_type_display }}</span>
+              </div>
+              <p class="vv-serif mb-3" style="font-style:italic; font-size:14px; color:#555;">{{ store.name }}</p>
+
+              <div class="d-flex flex-column" style="gap:7px; font-size:12.5px; line-height:1.7; font-weight:300; color:#555;">
+                <p class="mb-0">{{ store.address }}, {{ store.postal_code }}</p>
+                <p class="mb-0"><a href="tel:{{ store.phone|cut:' ' }}" style="color:inherit; text-decoration:none;">{{ store.phone }}</a></p>
+                <p class="mb-0" style="color:var(--vv-mute);">{{ store.opening_hours }}</p>
+              </div>
+
+              <div class="d-flex align-items-center flex-wrap mt-4" style="gap:22px;">
+                <a href="{% url 'appointment_form' store.pk %}" class="vv-book"
+                   hx-get="{% url 'appointment_form' store.pk %}"
+                   hx-target="#vv-modal-body" hx-swap="innerHTML"
+                   data-bs-toggle="modal" data-bs-target="#vv-modal">
+                  Записатися на примірку
+                </a>
+                <a href="https://www.google.com/maps/dir/?api=1&destination={{ store.latitude }},{{ store.longitude }}"
+                   target="_blank" rel="noopener" class="vv-route">Маршрут</a>
+              </div>
+            </article>
+          {% empty %}
+            <div class="text-center" style="padding:70px 0;">
+              <p class="vv-serif mb-2" style="font-size:22px;">Салонів не знайдено</p>
+              <p class="mb-0 fw-light" style="font-size:13px; color:var(--vv-mute);">
+                Напишіть нам — підберемо найближчий партнерський салон.
+              </p>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------- RIGHT: map (~60%) ---------- -->
+    <div class="col-12 col-lg-7 order-1 order-lg-2">
+      <div class="vv-map" id="vv-map">
+        <div class="vv-map__grid"></div>
+        <div style="position:absolute; inset:0;
+                    background:radial-gradient(ellipse at 60% 40%, rgba(255,255,255,.85) 0%, rgba(255,255,255,0) 62%);"></div>
+
+        <div style="position:absolute; left:28px; bottom:28px; background:rgba(255,255,255,.92);
+                    padding:18px 22px; max-width:260px;">
+          <p class="vv-serif mb-1" style="font-size:16px; letter-spacing:.04em;">
+            {{ boutiques.0.city }}, {{ boutiques.0.country }}
+          </p>
+          <p class="mb-0" style="font-size:11px; line-height:1.7; font-weight:300; color:var(--vv-mute);">
+            {{ boutiques.0.name }} · {{ boutiques.0.address }}
+          </p>
+        </div>
+
+        <div style="position:absolute; right:24px; top:24px; display:flex; flex-direction:column;
+                    border:1px solid var(--vv-hair2); background:rgba(255,255,255,.92);">
+          <button type="button" aria-label="Збільшити"
+                  style="width:38px; height:38px; background:none; border:0;
+                         border-bottom:1px solid var(--vv-hair2); font-size:15px; color:#555;">+</button>
+          <button type="button" aria-label="Зменшити"
+                  style="width:38px; height:38px; background:none; border:0; font-size:15px; color:#555;">−</button>
+        </div>
+
+        <p class="vv-map__note">Map placeholder</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{# Pin data for the real map SDK #}
+{{ boutiques_geojson|json_script:"boutiques-geojson" }}
+
+<!-- Appointment modal shell (HTMX fills #vv-modal-body) -->
+<div class="modal fade" id="vv-modal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius:0; border:0;">
+      <div class="modal-header border-0" style="padding:32px 32px 0;">
+        <h5 class="vv-serif modal-title" style="font-size:24px;">Записатися на примірку</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
+      </div>
+      <div class="modal-body" id="vv-modal-body" style="padding:24px 32px 40px;"></div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

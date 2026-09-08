@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/pages/cart.css' %}">
+{% endblock %}
+
+{% block content %}
+{% include "commerce/partials/_cart_body.html" %}
+{% endblock %}

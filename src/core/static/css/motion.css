@@ -1,0 +1,89 @@
+.reveal {
+  opacity: 0;
+  transform: translate3d(0, 24px, 0);
+  transition:
+    opacity var(--motion-reveal) var(--ease-reveal),
+    transform var(--motion-reveal) var(--ease-reveal);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+.rise-in > * {
+  animation: vv-hero-rise var(--motion-reveal) var(--ease-reveal) both;
+}
+
+.rise-in > *:nth-child(2) {
+  animation-delay: 160ms;
+}
+
+.rise-in > *:nth-child(3) {
+  animation-delay: 280ms;
+}
+
+.rise-in > *:nth-child(4) {
+  animation-delay: 400ms;
+}
+
+.product-grid__item.reveal:nth-child(1) { transition-delay: 0ms; }
+.product-grid__item.reveal:nth-child(2) { transition-delay: 90ms; }
+.product-grid__item.reveal:nth-child(3) { transition-delay: 180ms; }
+.product-grid__item.reveal:nth-child(4) { transition-delay: 270ms; }
+.product-grid__item.reveal:nth-child(5) { transition-delay: 360ms; }
+.product-grid__item.reveal:nth-child(6) { transition-delay: 450ms; }
+.product-grid__item.reveal:nth-child(7) { transition-delay: 540ms; }
+.product-grid__item.reveal:nth-child(8) { transition-delay: 630ms; }
+
+.vv-event.reveal:nth-child(2) { transition-delay: 180ms; }
+.vv-event.reveal:nth-child(3) { transition-delay: 360ms; }
+
+.vv-benefit.reveal:nth-child(2) { transition-delay: 180ms; }
+.vv-benefit.reveal:nth-child(3) { transition-delay: 360ms; }
+
+@keyframes vv-hero-drift {
+  from {
+    opacity: 0;
+    transform: scale(1.06);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes vv-hero-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 20px, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: opacity var(--motion-soft) linear;
+  }
+
+  .rise-in > * {
+    animation-duration: var(--motion-soft);
+  }
+
+  @keyframes vv-hero-drift {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes vv-hero-rise {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+}

@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+{# ============================================================
+   VARVAROVA — Shopping Cart
+   Bootstrap 5 grid + HTMX for qty adjusters and item removal.
+
+   Views expected:
+     cart_qty      -> POST(item_pk, delta) → renders _cart_body.html
+     cart_remove   -> POST(item_pk)        → renders _cart_body.html
+     checkout, catalog, home
+   Everything inside #cart-body is what HTMX swaps, so items AND the
+   summary refresh together. Move it into
+   templates/partials/_cart_body.html and {% include %} it here.
+   ============================================================ #}
+
+<style>
+  :root{
+    --vv-white:#FFFFFF; --vv-pearl:#F5F5F5; --vv-ink:#222222;
+    --vv-black:#000000; --vv-mute:#8A8A8A; --vv-line:#EFEFEF;
+    --vv-hair:#DDDDDD; --vv-hair2:#E2E2E2;
+  }
+  body{ background:var(--vv-white); color:var(--vv-ink); font-family:'Inter',sans-serif; }
+  .vv-serif{ font-family:'Playfair Display',serif; font-weight:400; }
+  .vv-eyebrow{ font-size:10px; letter-spacing:.32em; text-transform:uppercase; color:var(--vv-mute); }
+  .vv-colhead{ font-size:10px; letter-spacing:.28em; text-transform:uppercase; color:var(--vv-mute); }
+  .vv-pad{ padding-left:48px; padding-right:48px; }
+  @media (max-width:767px){ .vv-pad{ padding-left:20px; padding-right:20px; } }
+
+  /* ---- Item rows ---- */
+  .vv-item{ display:grid; grid-template-columns:132px minmax(0,1fr) auto; gap:32px;
+            padding:36px 0; border-bottom:1px solid var(--vv-line); align-items:start; }
+  .vv-item__thumb{ position:relative; aspect-ratio:3/4.1; background:var(--vv-pearl); overflow:hidden; }
+  .vv-item__thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .vv-item__price{ text-align:right; white-space:nowrap; }
+  @media (max-width:575px){
+    .vv-item{ grid-template-columns:108px minmax(0,1fr); gap:20px; }
+    .vv-item__price{ grid-column:2; text-align:left; }
+  }
+
+  /* ---- Quantity stepper ---- */
+  .vv-qty{ display:inline-flex; align-items:center; border:1px solid var(--vv-hair); }
+  .vv-qty button{ width:40px; height:40px; display:grid; place-items:center; background:none;
+                  border:0; font-size:15px; color:var(--vv-ink); }
+  .vv-qty button:hover{ background:var(--vv-pearl); }
+  .vv-qty button:disabled{ color:var(--vv-hair); background:none; }
+  .vv-qty span{ min-width:34px; text-align:center; font-size:13px; letter-spacing:.06em; }
+  .vv-remove{ display:inline-flex; align-items:center; gap:9px; background:none; border:0; padding:0;
+              font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--vv-mute); }
+  .vv-remove:hover{ color:var(--vv-ink); }
+
+  /* ---- Summary ---- */
+  .vv-summary{ position:sticky; top:110px; background:var(--vv-pearl); padding:44px 40px; }
+  @media (max-width:991px){ .vv-summary{ position:static; } }
+  .vv-sumline{ display:flex; align-items:baseline; justify-content:space-between; gap:16px; }
+  .vv-sumline span:first-child{ font-size:13px; font-weight:300; color:#555; }
+  .vv-sumline span:last-child{ font-size:13px; letter-spacing:.04em; }
+  .vv-checkout{ width:100%; padding:22px 20px; background:var(--vv-ink); color:#fff; border:0;
+                font-size:11px; letter-spacing:.22em; text-transform:uppercase; display:block;
+                text-align:center; text-decoration:none; transition:background .35s ease; }
+  .vv-checkout:hover{ background:var(--vv-black); color:#fff; }
+  .vv-paycard{ width:46px; height:30px; border:1px solid #DCDCDC; background:#fff;
+               display:grid; place-items:center; color:#555; }
+
+  .htmx-request.vv-item, .htmx-request .vv-item{ opacity:.5; transition:opacity .15s ease; }
+</style>
+
+<!-- ===================== HEADER ===================== -->
+<section class="vv-pad text-center" style="padding-top:84px; padding-bottom:20px;">
+  <p class="vv-eyebrow mb-4">
+    {% if cart.count %}{{ cart.count }} {{ cart.count|pluralize:"позиція,позиції,позицій" }}{% else %}Порожньо{% endif %}
+  </p>
+  <h1 class="vv-serif mb-0" style="font-size:clamp(34px,5vw,52px); letter-spacing:.03em; line-height:1.1;">
+    Мій кошик
+  </h1>
+</section>
+
+<!-- ===================== HTMX SWAP TARGET ===================== -->
+<div id="cart-body">
+{% if cart.items %}
+
+  <div class="vv-pad" style="padding-top:60px; padding-bottom:140px;">
+    <div class="row" style="--bs-gutter-x:72px; row-gap:48px;">
+
+      <!-- ---------- LEFT: items (~70%) ---------- -->
+      <div class="col-12 col-lg-8">
+        <div class="d-flex align-items-center justify-content-between gap-3 pb-3"
+             style="border-bottom:1px solid var(--vv-ink);">
+          <p class="vv-colhead mb-0">Товар</p>
+          <p class="vv-colhead mb-0">Сума</p>
+        </div>
+
+        {% for item in cart.items %}
+          <div class="vv-item" id="cart-item-{{ item.pk }}">
+            <div class="vv-item__thumb">
+              <a href="{{ item.product.get_absolute_url }}">
+                <img src="{{ item.product.image.url|default:'https://source.unsplash.com/400x546/?wedding-dress,bridal' }}"
+                     alt="{{ item.product.name }}" loading="lazy">
+              </a>
+            </div>
+
+            <div>
+              <h3 class="vv-serif mb-2" style="font-size:22px; letter-spacing:.05em;">
+                <a href="{{ item.product.get_absolute_url }}" style="text-decoration:none; color:inherit;">{{ item.product.name }}</a>
+              </h3>
+              <p class="mb-4" style="font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--vv-mute);">
+                {{ item.product.category }} · Розмір {{ item.size }} · {{ item.color }}
+              </p>
+
+              <div class="d-flex align-items-center flex-wrap" style="gap:26px;">
+                <!-- Quantity: each button posts and re-renders the whole cart body -->
+                <div class="vv-qty">
+                  <button type="button" aria-label="Менше"
+                          {% if item.quantity <= 1 %}disabled{% endif %}
+                          hx-post="{% url 'cart_qty' item.pk %}"
+                          hx-vals='{"delta": -1}'
+                          hx-target="#cart-body"
+                          hx-swap="outerHTML"
+                          hx-headers='{"X-CSRFToken":"{{ csrf_token }}"}'>−</button>
+                  <span>{{ item.quantity }}</span>
+                  <button type="button" aria-label="Більше"
+                          hx-post="{% url 'cart_qty' item.pk %}"
+                          hx-vals='{"delta": 1}'
+                          hx-target="#cart-body"
+                          hx-swap="outerHTML"
+                          hx-headers='{"X-CSRFToken":"{{ csrf_token }}"}'>+</button>
+                </div>
+
+                <button type="button" class="vv-remove"
+                        hx-post="{% url 'cart_remove' item.pk %}"
+                        hx-target="#cart-body"
+                        hx-swap="outerHTML"
+                        hx-confirm="Видалити «{{ item.product.name }}» з кошика?"
+                        hx-headers='{"X-CSRFToken":"{{ csrf_token }}"}'>
+                  <svg width="9" height="9" viewBox="0 0 9 9" fill="none" stroke="currentColor" stroke-width="1.2">
+                    <path d="M1 1l7 7M8 1l-7 7"/>
+                  </svg>
+                  <span>Видалити</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="vv-item__price d-flex flex-column align-items-end gap-2">
+              <p class="mb-0" style="font-size:14px; letter-spacing:.06em;">{{ item.line_total_display }}</p>
+              {% if item.quantity > 1 %}
+                <p class="mb-0" style="font-size:11px; letter-spacing:.08em; color:var(--vv-mute);">
+                  {{ item.unit_price_display }} × {{ item.quantity }}
+                </p>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+
+        <div style="padding-top:36px;">
+          <a href="{% url 'catalog' %}"
+             style="font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--vv-mute);
+                    border-bottom:1px solid var(--vv-hair); padding-bottom:5px; text-decoration:none;">
+            ← Продовжити покупки
+          </a>
+        </div>
+      </div>
+
+      <!-- ---------- RIGHT: summary (~30%) ---------- -->
+      <div class="col-12 col-lg-4">
+        <aside class="vv-summary">
+          <h2 class="vv-serif mb-5" style="font-size:24px; letter-spacing:.05em;">Разом</h2>
+
+          <div class="d-flex flex-column gap-3 pb-4" style="border-bottom:1px solid var(--vv-hair2);">
+            <div class="vv-sumline">
+              <span>Проміжна сума</span><span>{{ cart.subtotal_display }}</span>
+            </div>
+            <div class="vv-sumline">
+              <span>Доставка</span>
+              <span>{% if cart.shipping_cost %}{{ cart.shipping_display }}{% else %}Безкоштовно{% endif %}</span>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-baseline justify-content-between gap-3"
+               style="padding:26px 0 34px;">
+            <span style="font-size:11px; letter-spacing:.24em; text-transform:uppercase;">Загалом</span>
+            <span class="vv-serif" style="font-size:26px; letter-spacing:.03em;">{{ cart.total_display }}</span>
+          </div>
+
+          <a href="{% url 'checkout' %}" class="vv-checkout">Оформити замовлення</a>
+
+          <p class="mb-0" style="margin-top:22px; font-size:11px; line-height:1.8; font-weight:300; color:var(--vv-mute);">
+            Безпечна оплата. Податки враховано на етапі оформлення.
+          </p>
+
+          <div class="d-flex align-items-center flex-wrap gap-2"
+               style="margin-top:34px; padding-top:26px; border-top:1px solid var(--vv-hair2);">
+            <div class="vv-paycard vv-serif" style="font-style:italic; font-size:12px;">VISA</div>
+            <div class="vv-paycard">
+              <svg width="30" height="18" viewBox="0 0 30 18">
+                <circle cx="11" cy="9" r="6.4" fill="none" stroke="#555" stroke-width="1.1"/>
+                <circle cx="19" cy="9" r="6.4" fill="none" stroke="#555" stroke-width="1.1"/>
+              </svg>
+            </div>
+            <div class="vv-paycard" style="font-size:10px;">&#63743;Pay</div>
+            <div class="vv-paycard" style="font-size:9px; letter-spacing:.06em;">G Pay</div>
+          </div>
+        </aside>
+      </div>
+
+    </div>
+  </div>
+
+{% else %}
+
+  <!-- ===================== EMPTY STATE ===================== -->
+  <section class="vv-pad d-flex flex-column align-items-center text-center"
+           style="padding-top:90px; padding-bottom:180px;">
+    <div style="width:108px; height:108px; border-radius:50%; background:var(--vv-pearl);
+                display:grid; place-items:center; margin-bottom:40px;">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--vv-mute)" stroke-width="1.1">
+        <path d="M4 7h16l-1.4 12.2a2 2 0 0 1-2 1.8H7.4a2 2 0 0 1-2-1.8z"/>
+        <path d="M8.5 7V5.6a3.5 3.5 0 0 1 7 0V7"/>
+      </svg>
+    </div>
+    <h2 class="vv-serif mb-3" style="font-size:30px; letter-spacing:.02em;">Ваш кошик порожній</h2>
+    <p class="fw-light mb-5" style="max-width:380px; font-size:14px; line-height:1.9; color:#555;">
+      Оберіть сукню з нової колекції — або збережіть улюблені моделі, щоб повернутися до них пізніше.
+    </p>
+    <a href="{% url 'catalog' %}" class="vv-checkout" style="width:auto; padding:20px 56px;">
+      Повернутися до покупок
+    </a>
+  </section>
+
+{% endif %}
+</div>
+{% endblock content %}

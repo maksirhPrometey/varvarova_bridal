@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/pages/account.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="vv-pad account-page">
+  <div class="account-layout">
+    {% include "partials/account_nav.html" %}
+    <div class="account-main rise-in">
+      <p class="vv-crumbs vv-mb-4">
+        <a href="{% url 'commerce:account_orders' %}">Замовлення</a>
+        <span>/</span>
+        <span>{{ order.number }}</span>
+      </p>
+      <h1 class="page-title">{{ order.number }}</h1>
+      <p class="order-status">{{ order.get_status_display }} · {{ order.created_at|date:"d.m.Y" }}</p>
+
+      <ul class="order-items">
+        {% for item in order.items.all %}
+          <li>
+            <span>{{ item.name_snapshot }}</span>
+            <span>×{{ item.qty }}</span>
+            <span>{{ item.line_total_uah|floatformat:0 }} грн</span>
+          </li>
+        {% endfor %}
+      </ul>
+
+      <dl class="order-facts">
+        <div>
+          <dt>Разом</dt>
+          <dd>{{ order.total_uah|floatformat:0 }} грн</dd>
+        </div>
+        <div>
+          <dt>Оплата</dt>
+          <dd>{{ order.get_payment_status_display }}</dd>
+        </div>
+        <div>
+          <dt>Доставка</dt>
+          <dd>{{ order.get_shipping_method_display }}</dd>
+        </div>
+        {% if order.pickup_salon_name %}
+          <div>
+            <dt>Салон</dt>
+            <dd>{{ order.pickup_salon_name }}{% if order.pickup_salon_address %}, {{ order.pickup_salon_address }}{% endif %}</dd>
+          </div>
+        {% endif %}
+        {% if order.np_warehouse_name %}
+          <div>
+            <dt>Відділення</dt>
+            <dd>{{ order.np_city_name }}, {{ order.np_warehouse_name }}</dd>
+          </div>
+        {% endif %}
+        {% if order.shipping_address %}
+          <div>
+            <dt>Адреса</dt>
+            <dd>{{ order.shipping_address }}</dd>
+          </div>
+        {% endif %}
+      </dl>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/pages/content.css' %}">
+{% endblock %}
+
+{% block content %}
+<article class="vv-pad content-page rise-in">
+  <p class="content-meta">{{ post.published_at|date:"d.m.Y" }}</p>
+  <h1 class="page-title">{{ post.title }}</h1>
+  {% if post.cover_image %}
+    <img src="{{ post.cover_image.url }}" alt="{{ post.title }}" loading="lazy">
+  {% endif %}
+  <div class="content-page__body vv-mt-5">{{ post.body|safe }}</div>
+</article>
+{% endblock %}

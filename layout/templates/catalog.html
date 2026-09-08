@@ -1,0 +1,238 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+{# ============================================================
+   VARVAROVA — Catalog / Listing page
+   Bootstrap 5 grid + HTMX filtering (hx-get / hx-target / hx-push-url)
+
+   Views expected:
+     catalog          -> full page (this template)
+     catalog_grid     -> renders _product_grid.html only (HTMX partial)
+     wishlist_toggle  -> returns the replaced heart button
+   Context: category, facets, active_filters, products (Page object), request.GET
+   ============================================================ #}
+
+<style>
+  :root{
+    --vv-white:#FFFFFF; --vv-pearl:#F5F5F5; --vv-ink:#222222;
+    --vv-black:#000000; --vv-mute:#8A8A8A; --vv-line:#EFEFEF;
+  }
+  body{ background:var(--vv-white); color:var(--vv-ink); font-family:'Inter',sans-serif; }
+  .vv-serif{ font-family:'Playfair Display',serif; font-weight:400; }
+  .vv-eyebrow{ font-size:10px; letter-spacing:.32em; text-transform:uppercase; color:var(--vv-mute); }
+  .vv-crumbs{ font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--vv-mute); }
+  .vv-crumbs a{ color:var(--vv-mute); text-decoration:none; }
+  .vv-crumbs a:hover{ color:var(--vv-ink); }
+  .vv-pad{ padding-left:48px; padding-right:48px; }
+  @media (max-width:767px){ .vv-pad{ padding-left:20px; padding-right:20px; } }
+
+  /* ---- Filter bar ---- */
+  .vv-filterbar{ position:sticky; top:0; z-index:30; background:#fff;
+                 border-top:1px solid var(--vv-line); border-bottom:1px solid var(--vv-line); }
+  .vv-facet > button{ background:none; border:0; border-right:1px solid var(--vv-line);
+                 padding:22px 26px; font-size:11px; letter-spacing:.16em; text-transform:uppercase;
+                 color:var(--vv-ink); display:flex; align-items:center; gap:10px; }
+  .vv-facet > button:hover{ color:var(--vv-mute); }
+  .vv-facet .dropdown-menu{ border:1px solid var(--vv-line); border-radius:0; padding:10px 0;
+                 min-width:220px; box-shadow:0 18px 40px rgba(0,0,0,.06); }
+  .vv-facet .dropdown-item{ font-size:12px; letter-spacing:.06em; padding:12px 24px; }
+  .vv-facet .dropdown-item:active{ background:var(--vv-pearl); color:var(--vv-ink); }
+  .vv-tag{ display:inline-flex; align-items:center; gap:12px; background:var(--vv-pearl);
+           border:0; padding:11px 18px; font-size:11px; letter-spacing:.12em;
+           text-transform:uppercase; color:var(--vv-ink); text-decoration:none; }
+  .vv-tag:hover{ background:#EAEAEA; color:var(--vv-ink); }
+
+  /* ---- Product card ---- */
+  .vv-card__media{ position:relative; aspect-ratio:3/4.4; background:var(--vv-pearl); overflow:hidden; }
+  .vv-card__media img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  .vv-card__media img.vv-alt{ opacity:0; transition:opacity .6s ease; }
+  .vv-card:hover .vv-card__media img.vv-alt{ opacity:1; }
+  .vv-wish{ position:absolute; top:16px; right:16px; z-index:2; width:38px; height:38px;
+            border:0; padding:0; border-radius:50%; background:rgba(255,255,255,.88);
+            display:grid; place-items:center; cursor:pointer; }
+  .vv-wish:hover{ background:#fff; }
+
+  /* ---- Pagination ---- */
+  .vv-page{ min-width:42px; background:none; border:0; border-bottom:1px solid transparent;
+            padding:12px 4px; font-family:'Playfair Display',serif; font-size:15px;
+            letter-spacing:.08em; color:var(--vv-mute); text-decoration:none; display:inline-block; }
+  .vv-page.is-active{ color:var(--vv-ink); border-bottom-color:var(--vv-ink); }
+  .htmx-request #product-grid{ opacity:.45; transition:opacity .2s ease; }
+</style>
+
+<!-- ===================== BREADCRUMBS ===================== -->
+<section class="vv-pad" style="padding-top:44px;">
+  <nav class="vv-crumbs d-flex align-items-center gap-2" aria-label="breadcrumb">
+    <a href="{% url 'home' %}">Головна</a>
+    <span>/</span>
+    <span style="color:var(--vv-ink)">{{ category.title|default:"Весільні сукні" }}</span>
+  </nav>
+</section>
+
+<!-- ===================== HEADER ===================== -->
+<section class="vv-pad text-center" style="padding-top:76px; padding-bottom:56px;">
+  <p class="vv-eyebrow mb-4">{{ category.season|default:"Колекція 2026" }}</p>
+  <h1 class="vv-serif mb-4" style="font-size:clamp(34px,5vw,58px); line-height:1.1; letter-spacing:.02em;">
+    {{ category.title|default:"Весільні сукні" }}
+  </h1>
+  <p class="fw-light mx-auto mb-0" style="max-width:480px; font-size:14px; line-height:1.85; color:#555;">
+    {{ category.intro|default:"Понад 120 силуетів — від мінімалістичного крепу до багатошарового французького мережива." }}
+  </p>
+</section>
+
+<!-- ===================== FILTER BAR (HTMX) ===================== -->
+<section class="vv-filterbar">
+  <div class="vv-pad d-flex align-items-center justify-content-between gap-4"
+       style="overflow-x:auto;">
+
+    <div class="d-flex align-items-stretch">
+      {% for facet in facets %}
+        <div class="vv-facet dropdown">
+          <button type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <span>{{ facet.label }}</span>
+            <svg width="9" height="6" viewBox="0 0 9 6" fill="none" stroke="currentColor" stroke-width="1.2">
+              <path d="M1 1l3.5 3.5L8 1"/>
+            </svg>
+          </button>
+          <ul class="dropdown-menu">
+            {% for opt in facet.options %}
+              <li>
+                {# Each option is a GET that swaps only the grid and pushes the new URL #}
+                <a class="dropdown-item d-flex justify-content-between align-items-center"
+                   href="{{ opt.url }}"
+                   hx-get="{% url 'catalog_grid' %}{{ opt.url }}"
+                   hx-target="#product-grid"
+                   hx-swap="outerHTML"
+                   hx-push-url="{{ opt.url }}"
+                   hx-indicator="body">
+                  <span>{{ opt.label }}</span>
+                  <span style="color:var(--vv-mute); font-size:11px;">{% if opt.selected %}&check;{% endif %}</span>
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="d-flex align-items-center gap-4" style="white-space:nowrap;">
+      <span style="font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--vv-mute);">
+        {{ products.paginator.count }} моделей
+      </span>
+      <select name="sort"
+              hx-get="{% url 'catalog_grid' %}"
+              hx-target="#product-grid"
+              hx-swap="outerHTML"
+              hx-trigger="change"
+              hx-include="[name='sort']"
+              hx-push-url="true"
+              class="border-0 bg-transparent"
+              style="font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--vv-ink);">
+        <option value="recommended">Рекомендовані</option>
+        <option value="price_asc" {% if request.GET.sort == 'price_asc' %}selected{% endif %}>Ціна ↑</option>
+        <option value="price_desc" {% if request.GET.sort == 'price_desc' %}selected{% endif %}>Ціна ↓</option>
+        <option value="new" {% if request.GET.sort == 'new' %}selected{% endif %}>Новинки</option>
+      </select>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ACTIVE FILTER TAGS ===================== -->
+{% if active_filters %}
+<section class="vv-pad d-flex align-items-center flex-wrap gap-2" style="padding-top:28px;">
+  {% for f in active_filters %}
+    <a class="vv-tag" href="{{ f.remove_url }}"
+       hx-get="{% url 'catalog_grid' %}{{ f.remove_url }}"
+       hx-target="#product-grid"
+       hx-swap="outerHTML"
+       hx-push-url="{{ f.remove_url }}">
+      <span>{{ f.label }}</span>
+      <svg width="9" height="9" viewBox="0 0 9 9" fill="none" stroke="var(--vv-mute)" stroke-width="1.2">
+        <path d="M1 1l7 7M8 1l-7 7"/>
+      </svg>
+    </a>
+  {% endfor %}
+  <a href="{{ request.path }}"
+     hx-get="{% url 'catalog_grid' %}"
+     hx-target="#product-grid"
+     hx-swap="outerHTML"
+     hx-push-url="{{ request.path }}"
+     style="font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--vv-mute);
+            text-decoration:underline; text-underline-offset:4px; padding:11px 8px;">
+    Очистити все
+  </a>
+</section>
+{% endif %}
+
+<!-- ===================== PRODUCT GRID (HTMX target) =====================
+     Move everything below into templates/partials/_product_grid.html and
+     {% include %} it here, so `catalog_grid` can render the partial alone.
+     ==================================================================== -->
+<div id="product-grid">
+  <section class="vv-pad" style="padding-top:56px; padding-bottom:40px;">
+    <div class="row" style="row-gap:56px; --bs-gutter-x:32px;">
+      {% for product in products %}
+        <article class="col-6 col-md-4 col-xl-3 vv-card">
+          <div class="vv-card__media">
+            <img src="{{ product.image_front.url|default:'https://source.unsplash.com/900x1300/?wedding-dress,bridal' }}"
+                 alt="{{ product.name }} — фас" loading="lazy">
+            <img class="vv-alt"
+                 src="{{ product.image_back.url|default:'https://source.unsplash.com/900x1301/?bridal,wedding-dress' }}"
+                 alt="{{ product.name }} — спина" loading="lazy">
+            <button class="vv-wish" aria-label="Додати в улюблене"
+                    hx-post="{% url 'wishlist_toggle' product.pk %}"
+                    hx-swap="outerHTML"
+                    hx-headers='{"X-CSRFToken":"{{ csrf_token }}"}'>
+              <svg width="16" height="16" viewBox="0 0 24 24"
+                   fill="{% if product.in_wishlist %}#222222{% else %}none{% endif %}"
+                   stroke="#222222" stroke-width="1.3">
+                <path d="M12 20.5 4.2 12.9a4.7 4.7 0 0 1 6.6-6.7l1.2 1.1 1.2-1.1a4.7 4.7 0 0 1 6.6 6.7z"/>
+              </svg>
+            </button>
+          </div>
+          <h3 class="vv-serif mt-4 mb-2" style="font-size:18px; letter-spacing:.06em;">{{ product.name }}</h3>
+          <p class="mb-2" style="font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--vv-mute);">
+            {{ product.silhouette }} · {{ product.collection }}
+          </p>
+          <p class="mb-0" style="font-size:13px; letter-spacing:.06em;">{{ product.price_display }}</p>
+        </article>
+      {% empty %}
+        <div class="col-12 text-center" style="padding:90px 0;">
+          <p class="vv-serif mb-2" style="font-size:24px;">Нічого не знайдено</p>
+          <p class="mb-0 fw-light" style="font-size:13px; color:var(--vv-mute);">Спробуйте зняти частину фільтрів.</p>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- ===================== PAGINATION (HTMX) ===================== -->
+  {% if products.paginator.num_pages > 1 %}
+  <section class="vv-pad d-flex align-items-center justify-content-center gap-2"
+           style="padding-top:40px; padding-bottom:130px;">
+    {% if products.has_previous %}
+      <a href="?{{ querystring }}&page={{ products.previous_page_number }}"
+         hx-get="{% url 'catalog_grid' %}?{{ querystring }}&page={{ products.previous_page_number }}"
+         hx-target="#product-grid" hx-swap="outerHTML" hx-push-url="true"
+         style="font-size:11px; letter-spacing:.18em; text-transform:uppercase;
+                color:var(--vv-mute); text-decoration:none; padding:12px 18px;">Назад</a>
+    {% endif %}
+
+    {% for n in products.paginator.page_range %}
+      <a class="vv-page {% if n == products.number %}is-active{% endif %}"
+         href="?{{ querystring }}&page={{ n }}"
+         hx-get="{% url 'catalog_grid' %}?{{ querystring }}&page={{ n }}"
+         hx-target="#product-grid" hx-swap="outerHTML" hx-push-url="true">{{ n }}</a>
+    {% endfor %}
+
+    {% if products.has_next %}
+      <a href="?{{ querystring }}&page={{ products.next_page_number }}"
+         hx-get="{% url 'catalog_grid' %}?{{ querystring }}&page={{ products.next_page_number }}"
+         hx-target="#product-grid" hx-swap="outerHTML" hx-push-url="true"
+         style="font-size:11px; letter-spacing:.18em; text-transform:uppercase;
+                color:var(--vv-ink); text-decoration:none; padding:12px 18px;">Далі</a>
+    {% endif %}
+  </section>
+  {% endif %}
+</div>
+{% endblock content %}

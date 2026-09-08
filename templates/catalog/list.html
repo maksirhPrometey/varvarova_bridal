@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/pages/catalog.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="vv-pad catalog-crumbs">
+  <nav class="vv-crumbs vv-flex vv-items-center vv-gap-2" aria-label="breadcrumb">
+    <a href="{% url 'content:home' %}">Головна</a>
+    {% for ancestor in ancestors %}
+      <span>/</span>
+      <a href="{% url 'catalog:list' slug=ancestor.slug %}">{{ ancestor.name }}</a>
+    {% endfor %}
+    <span>/</span>
+    <span>{{ category.name }}</span>
+  </nav>
+</section>
+
+<section class="vv-pad catalog-hero rise-in">
+  <p class="vv-eyebrow vv-mb-4">Колекція</p>
+  <h1 class="vv-serif page-title vv-mb-4">{{ category.name }}</h1>
+  {% if category.description %}
+    <div class="catalog-hero__intro">{{ category.description|safe }}</div>
+  {% endif %}
+  {% if is_stub %}
+    {% include "partials/stub_notice.html" with message="Категорії ще немає в БД — показуємо заглушку. Додайте slug wedding/evening в Catalog." %}
+  {% endif %}
+  {% if children %}
+    <div class="catalog-children">
+      {% for child in children %}
+        <a href="{% url 'catalog:list' slug=child.slug %}">{{ child.name }}</a>
+      {% endfor %}
+    </div>
+  {% endif %}
+</section>
+
+{% if is_stub %}
+<form class="vv-filterbar" data-qa="filter-form">
+  <div class="vv-filterbar__scroll" data-filter-scroll data-not-scrollable="true">
+    <div class="vv-pad vv-filterbar__inner">
+      <div class="vv-filter-meta"><span>0 моделей</span></div>
+    </div>
+  </div>
+</form>
+<section class="vv-pad catalog-grid-wrap">
+  <div class="product-grid" data-qa="product-grid" id="product-grid">
+    <p class="catalog-empty">Каталог зʼявиться після створення категорії та товарів.</p>
+  </div>
+</section>
+{% else %}
+<form method="get"
+      action="{% url 'catalog:list' slug=category.slug %}"
+      data-qa="filter-form"
+      hx-get="{% url 'catalog:list' slug=category.slug %}"
+      hx-target="#catalog-results"
+      hx-select="#catalog-results"
+      hx-swap="outerHTML"
+      hx-push-url="true"
+      hx-trigger="change">
+  <div class="vv-filterbar">
+    <div class="vv-filterbar__scroll" data-filter-scroll>
+      <div class="vv-pad vv-filterbar__inner">
+        <div class="vv-facets">
+          {% for facet in facets %}
+            <details class="vv-facet">
+              <summary>{{ facet.attribute.name }}</summary>
+              <div class="vv-facet__menu">
+                {% for value in facet.values %}
+                  <label class="vv-facet__item{% if value.checked %} is-active{% endif %}">
+                    <span>{{ value.obj.value }}</span>
+                    <input type="checkbox" name="a" value="{{ value.query }}"{% if value.checked %} checked{% endif %}>
+                  </label>
+                {% endfor %}
+              </div>
+            </details>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% include "catalog/partials/results.html" %}
+</form>
+{% endif %}
+{% endblock %}
+
+{% block page_js %}
+<script src="{% static 'js/filterbar.js' %}" defer></script>
+{% endblock %}

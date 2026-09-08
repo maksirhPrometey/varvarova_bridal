@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/pages/catalog.css' %}">
+<link rel="stylesheet" href="{% static 'css/pages/wishlist.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="vv-pad wishlist-page" data-wishlist-page>
+  {% if products %}
+    <header class="wishlist-page__head rise-in">
+      <p class="vv-eyebrow">{{ products|length }} збережених</p>
+      <h1>Улюблене</h1>
+    </header>
+    <div class="wishlist-page__grid">
+      {% include "catalog/partials/grid.html" %}
+    </div>
+  {% else %}
+    <div class="cart-empty rise-in">
+      <div class="cart-empty__icon" aria-hidden="true"></div>
+      <h1 class="page-title">Улюблене порожнє</h1>
+      <p>Збережіть сукні з колекції — вони залишаться тут, навіть якщо ви ще не в акаунті.</p>
+      <a class="vv-btn vv-btn--solid" href="{% url 'catalog:list' slug='wedding' %}">До каталогу</a>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

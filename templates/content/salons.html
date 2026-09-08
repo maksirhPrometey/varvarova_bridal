@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/pages/salons.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="vv-pad salons-hero rise-in">
+  <p class="vv-eyebrow vv-mb-4">Офлайн</p>
+  <h1 class="vv-serif vv-mb-4">Наші салони</h1>
+  <p class="salons-hero__intro">Приміряйте колекцію в офіційних бутіках Varvarova та в салонах авторизованих партнерів.</p>
+</section>
+
+<div class="vv-pad salons-layout">
+  <div class="salons-list">
+    <p class="salons-count">{{ salons|length }} салонів</p>
+    {% if is_stub %}
+      {% include "partials/stub_notice.html" with message="Салони зʼявляться після додавання в адмінці Content → Салони." %}
+    {% endif %}
+    {% for salon in salons %}
+      <article class="vv-store reveal{% if forloop.first %} is-active{% endif %}">
+        <div class="vv-flex vv-items-baseline vv-justify-between vv-gap-3 vv-mb-2">
+          <h2 class="vv-serif vv-mb-0">{{ salon.city }}</h2>
+          {% if salon.country %}<span class="vv-store__badge">{{ salon.country }}</span>{% endif %}
+        </div>
+        <p class="vv-serif vv-mb-3">{{ salon.name }}</p>
+        <div class="vv-store__meta">
+          <p>{{ salon.address }}</p>
+          {% if salon.phone %}<p><a href="tel:{{ salon.phone }}">{{ salon.phone }}</a></p>{% endif %}
+          {% if salon.email %}<p><a href="mailto:{{ salon.email }}">{{ salon.email }}</a></p>{% endif %}
+          {% if salon.working_hours %}<p>{{ salon.working_hours }}</p>{% endif %}
+        </div>
+        {% if salon.lat and salon.lng %}
+          <div class="vv-store__actions">
+            <a class="vv-route"
+               href="https://www.google.com/maps/dir/?api=1&destination={{ salon.lat }},{{ salon.lng }}"
+               target="_blank"
+               rel="noopener noreferrer">Маршрут</a>
+          </div>
+        {% endif %}
+      </article>
+    {% endfor %}
+  </div>
+  <div class="vv-map-placeholder" aria-hidden="true">Карта зʼявиться пізніше</div>
+</div>
+{% endblock %}

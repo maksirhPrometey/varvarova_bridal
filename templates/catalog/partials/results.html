@@ -1,0 +1,24 @@
+<div id="catalog-results">
+  {% if filter_chips %}
+    <section class="vv-pad catalog-tags">
+      {% for chip in filter_chips %}
+        <a class="vv-tag" href="{{ chip.href }}">{{ chip.label }}</a>
+      {% endfor %}
+      <a class="catalog-clear" href="{% url 'catalog:list' slug=category.slug %}">Очистити все</a>
+    </section>
+  {% endif %}
+
+  <div class="catalog-toolbar vv-pad">
+    <span>{{ products|length }} моделей</span>
+    <select name="sort" aria-label="Сортування">
+      <option value="new"{% if sort == 'new' %} selected{% endif %}>Новинки</option>
+      <option value="price_asc"{% if sort == 'price_asc' %} selected{% endif %}>Ціна ↑</option>
+      <option value="price_desc"{% if sort == 'price_desc' %} selected{% endif %}>Ціна ↓</option>
+      <option value="manual"{% if sort == 'manual' %} selected{% endif %}>За каталогом</option>
+    </select>
+  </div>
+
+  <section class="vv-pad catalog-grid-wrap">
+    {% include "catalog/partials/grid.html" %}
+  </section>
+</div>

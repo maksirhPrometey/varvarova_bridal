@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+{# ============================================================
+   VARVAROVA — About / Brand story
+   Bootstrap 5 grid. No HTMX needed: this page is editorial content.
+   Context: page (CMS singleton), gallery_images, latest_posts
+   ============================================================ #}
+
+<style>
+  :root{
+    --vv-white:#FFFFFF; --vv-pearl:#F5F5F5; --vv-ink:#222222;
+    --vv-black:#000000; --vv-mute:#8A8A8A; --vv-line:#EFEFEF; --vv-hair:#DDDDDD;
+  }
+  body{ background:var(--vv-white); color:var(--vv-ink); font-family:'Inter',sans-serif; }
+  .vv-serif{ font-family:'Playfair Display',serif; font-weight:400; }
+  .vv-eyebrow{ font-size:10px; letter-spacing:.32em; text-transform:uppercase; color:var(--vv-mute); }
+  .vv-pad{ padding-left:48px; padding-right:48px; }
+  @media (max-width:767px){ .vv-pad{ padding-left:20px; padding-right:20px; } }
+
+  /* ---- Hero ---- */
+  .vv-hero h1{ font-size:clamp(48px,8vw,104px); line-height:1.02; letter-spacing:-.005em; text-wrap:balance; }
+  .vv-hero__lede{ font-family:'Playfair Display',serif; font-size:clamp(20px,2.4vw,27px);
+                  line-height:1.62; max-width:760px; text-wrap:pretty; }
+
+  /* ---- Story split ---- */
+  .vv-story__media{ position:relative; aspect-ratio:4/5; background:var(--vv-pearl); overflow:hidden; }
+  .vv-story__text{ display:flex; flex-direction:column; justify-content:center; padding:90px 96px; }
+  @media (max-width:991px){ .vv-story__text{ padding:56px 20px; } }
+  .vv-quote{ font-family:'Playfair Display',serif; font-style:italic; font-size:19px; line-height:1.6;
+             border-left:1px solid var(--vv-hair); padding-left:26px; max-width:420px; }
+
+  /* ---- Zoom-on-hover figures ---- */
+  .vv-zoom{ position:relative; background:var(--vv-pearl); overflow:hidden; }
+  .vv-zoom img{ width:100%; height:100%; object-fit:cover; display:block;
+                transition:transform 1.4s cubic-bezier(.2,.8,.3,1), opacity .6s ease; }
+  .vv-zoom:hover img{ transform:scale(1.035); opacity:.92; }
+
+  /* ---- Asymmetric gallery (CSS grid masonry-style spans) ---- */
+  .vv-gallery{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); grid-auto-rows:210px; gap:8px; }
+  .vv-gallery > *:nth-child(1){ grid-column:span 2; grid-row:span 3; }
+  .vv-gallery > *:nth-child(2){ grid-column:span 2; grid-row:span 2; }
+  .vv-gallery > *:nth-child(3),
+  .vv-gallery > *:nth-child(4){ grid-column:span 1; grid-row:span 1; }
+  .vv-gallery > *:nth-child(5){ grid-column:span 1; grid-row:span 2; }
+  .vv-gallery > *:nth-child(6){ grid-column:span 3; grid-row:span 2; }
+  @media (max-width:991px){
+    .vv-gallery{ grid-template-columns:repeat(2,minmax(0,1fr)); grid-auto-rows:180px; }
+    .vv-gallery > *{ grid-column:span 1 !important; grid-row:span 1 !important; }
+    .vv-gallery > *:nth-child(1){ grid-column:span 2 !important; grid-row:span 2 !important; }
+  }
+
+  /* ---- News ---- */
+  .vv-post__media{ aspect-ratio:4/3; }
+  .vv-more{ font-size:10px; letter-spacing:.2em; text-transform:uppercase;
+            border-bottom:1px solid var(--vv-hair); padding-bottom:5px; text-decoration:none; }
+</style>
+
+<!-- ===================== 1. HERO / PHILOSOPHY ===================== -->
+<section class="vv-pad vv-hero" style="padding-top:170px; padding-bottom:150px; max-width:1180px;">
+  <p class="vv-eyebrow mb-5">Філософія</p>
+  <h1 class="vv-serif mb-5" style="margin-bottom:64px !important;">
+    Світ <span style="font-style:italic;">Varvarova</span>
+  </h1>
+  <p class="vv-hero__lede mb-0">
+    {{ page.philosophy_lede|default:"Ми шиємо сукні для одного дня, який згадують усе життя. Кожна модель проходить через руки сімнадцяти майстрів — від першого ескізу до останньої перлини, вшитої вручну." }}
+  </p>
+  <p class="fw-light mb-0" style="margin-top:44px; max-width:520px; font-size:14px; line-height:2; color:#555; text-wrap:pretty;">
+    {{ page.philosophy_body|default:"Двадцять чотири роки ми працюємо з французьким мереживом, італійським шовком і власними лекалами. Без масового виробництва, без компромісів у посадці." }}
+  </p>
+</section>
+
+<!-- ===================== 2. THE STORY (50/50) ===================== -->
+<section>
+  <div class="row g-0 align-items-stretch">
+    <div class="col-12 col-lg-6">
+      <figure class="vv-zoom vv-story__media mb-0">
+        <img src="{{ page.atelier_image.url|default:'https://source.unsplash.com/1200x1500/?designer-atelier,wedding-dress' }}"
+             alt="Ательє Varvarova" loading="lazy">
+      </figure>
+    </div>
+    <div class="col-12 col-lg-6">
+      <div class="vv-story__text">
+        <p class="vv-eyebrow mb-4">Історія</p>
+        <h2 class="vv-serif" style="margin-bottom:40px; font-size:clamp(28px,3.4vw,42px); line-height:1.2; letter-spacing:.01em;">
+          Львів, 2001 —<br>невелика майстерня
+        </h2>
+
+        <div class="d-flex flex-column" style="gap:26px; font-size:14px; line-height:2.05;
+             font-weight:300; color:#555; max-width:460px;">
+          <p class="mb-0" style="text-wrap:pretty;">Варвара почала з чотирьох сукень на замовлення і однієї швейної машини. Перша колекція складалася з семи моделей — усі були пошиті за одним принципом: сукня має сидіти так, ніби її виростили на тілі.</p>
+          <p class="mb-0" style="text-wrap:pretty;">Сьогодні ательє займає три поверхи у центрі Львова, а колекції продаються у понад 400 салонах у 38 країнах. Виробництво залишилося там, де почалося — жодну сукню не шиють за межами України.</p>
+          <p class="mb-0" style="text-wrap:pretty;">Мереживо ми обираємо особисто в Кале двічі на рік, шовк — у Комо. Усе інше, від корсетної основи до вишивки бісером, роблять наші майстри вручну.</p>
+        </div>
+
+        <blockquote class="vv-quote mb-0" style="margin-top:48px;">
+          «Наречена не має думати про сукню. Вона має думати про день.»
+        </blockquote>
+        <p class="mb-0" style="margin-top:18px; padding-left:27px; font-size:10px;
+           letter-spacing:.24em; text-transform:uppercase; color:var(--vv-mute);">
+          Варвара, засновниця
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 3. BRIDES & CELEBRITIES ===================== -->
+<section class="vv-pad" style="padding-top:160px;">
+  <div class="d-flex align-items-end justify-content-between flex-wrap gap-4 mb-5 pb-3">
+    <div>
+      <p class="vv-eyebrow mb-3">Галерея</p>
+      <h2 class="vv-serif mb-0" style="font-size:clamp(30px,4vw,48px); line-height:1.15; text-wrap:balance;">
+        Наші наречені<br>та Знаменитості
+      </h2>
+    </div>
+    <p class="mb-0 fw-light" style="max-width:330px; font-size:13px; line-height:1.9; color:var(--vv-mute);">
+      Кадри з реальних весіль, червоних килимів і зйомок для Vogue Ukraine.
+    </p>
+  </div>
+
+  <div class="vv-gallery">
+    {% for shot in gallery_images %}
+      <figure class="vv-zoom mb-0">
+        <img src="{{ shot.image.url }}" alt="{{ shot.caption }}" loading="lazy">
+      </figure>
+    {% empty %}
+      <figure class="vv-zoom mb-0"><img src="https://source.unsplash.com/1000x1400/?wedding-dress,fashion-editorial" alt="Наречена" loading="lazy"></figure>
+      <figure class="vv-zoom mb-0"><img src="https://source.unsplash.com/1200x900/?celebrity,fashion-editorial" alt="Червоний килим" loading="lazy"></figure>
+      <figure class="vv-zoom mb-0"><img src="https://source.unsplash.com/600x600/?bridal-lace,wedding-dress" alt="Деталь вишивки" loading="lazy"></figure>
+      <figure class="vv-zoom mb-0"><img src="https://source.unsplash.com/601x600/?bridal,wedding-dress" alt="Фата" loading="lazy"></figure>
+      <figure class="vv-zoom mb-0"><img src="https://source.unsplash.com/700x1200/?fashion-editorial,wedding-dress" alt="Редакційна зйомка" loading="lazy"></figure>
+      <figure class="vv-zoom mb-0"><img src="https://source.unsplash.com/1600x900/?celebrity,wedding-dress" alt="Панорамний кадр" loading="lazy"></figure>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- ===================== 4. LATEST NEWS ===================== -->
+<section class="vv-pad" style="padding-top:150px; padding-bottom:140px;">
+  <div class="d-flex align-items-end justify-content-between gap-4 mb-5 pb-3">
+    <h2 class="vv-serif mb-0" style="font-size:clamp(28px,3.4vw,42px); letter-spacing:.02em;">Останні новини</h2>
+    <a href="{% url 'blog_list' %}" style="font-size:11px; letter-spacing:.2em; text-transform:uppercase;
+       border-bottom:1px solid var(--vv-ink); padding-bottom:6px; white-space:nowrap; text-decoration:none;">
+      Усі публікації
+    </a>
+  </div>
+
+  <div class="row" style="row-gap:56px; --bs-gutter-x:40px;">
+    {% for post in latest_posts %}
+      <article class="col-12 col-md-6 col-lg-4">
+        <a href="{{ post.get_absolute_url }}" style="text-decoration:none; color:inherit;">
+          <figure class="vv-zoom vv-post__media mb-4">
+            <img src="{{ post.cover.url|default:'https://source.unsplash.com/1000x750/?fashion-editorial,wedding-dress' }}"
+                 alt="{{ post.title }}" loading="lazy">
+          </figure>
+          <p class="mb-3" style="font-size:10px; letter-spacing:.24em; text-transform:uppercase; color:var(--vv-mute);">
+            {{ post.published_at|date:"d.m.Y" }} · {{ post.category }}
+          </p>
+          <h3 class="vv-serif mb-3" style="font-size:24px; line-height:1.35; text-wrap:pretty;">{{ post.title }}</h3>
+          <p class="fw-light mb-4" style="font-size:13px; line-height:1.9; color:#555; text-wrap:pretty;">
+            {{ post.excerpt }}
+          </p>
+          <span class="vv-more">Читати далі</span>
+        </a>
+      </article>
+    {% endfor %}
+  </div>
+</section>
+{% endblock content %}

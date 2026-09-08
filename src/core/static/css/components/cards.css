@@ -1,0 +1,117 @@
+.vv-card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+  height: 100%;
+}
+
+.vv-card__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.vv-card__media {
+  position: relative;
+  aspect-ratio: 3 / 4.4;
+  background: var(--vv-pearl);
+  overflow: hidden;
+}
+
+.vv-card__media img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: translate3d(0, 0, 0);
+}
+
+.vv-card__media img.vv-alt {
+  opacity: 0;
+}
+
+.vv-card__title {
+  font-family: var(--ff-serif);
+  font-size: 18px;
+  letter-spacing: 0.06em;
+  font-weight: 400;
+}
+
+.vv-card__meta {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--vv-mute);
+}
+
+.vv-card__price {
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  margin-top: auto;
+}
+
+.vv-wish {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 2;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  padding: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.88);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: background var(--duration-ui) var(--ease-out);
+}
+
+.vv-wish.is-active svg,
+.vv-icon-btn.is-active svg {
+  fill: var(--vv-ink);
+}
+
+.vv-card__link {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.vv-card__title a {
+  text-decoration: none;
+  color: inherit;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .vv-card__media img {
+    transition:
+      transform var(--motion-soft) var(--ease-reveal),
+      opacity var(--motion-soft) var(--ease-reveal);
+  }
+
+  .vv-card:hover .vv-card__media img.vv-alt {
+    opacity: 1;
+  }
+
+  .vv-card:hover .vv-card__media img:first-child {
+    transform: scale(1.03);
+  }
+
+  .vv-wish:hover {
+    background: #fff;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vv-card__media img {
+    transition: opacity var(--motion-soft) linear;
+  }
+
+  .vv-card:hover .vv-card__media img:first-child {
+    transform: none;
+  }
+}

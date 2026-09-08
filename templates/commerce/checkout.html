@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/pages/cart.css' %}">
+<link rel="stylesheet" href="{% static 'css/pages/checkout.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="vv-pad checkout-page rise-in">
+  <header class="checkout-page__head">
+    <p class="vv-eyebrow">Замовлення</p>
+    <h1>Оформлення</h1>
+  </header>
+
+  <div class="checkout-layout">
+    <form class="checkout-form account-form" method="post" data-checkout-form data-np-cities-url="{% url 'commerce:np_cities' %}" data-np-warehouses-url="{% url 'commerce:np_warehouses' %}">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <p class="invalid-feedback" role="alert">{{ form.non_field_errors.0 }}</p>
+      {% endif %}
+
+      <fieldset>
+        <legend>Контакт</legend>
+        {% for field in form %}
+          {% if field.name == 'customer_name' or field.name == 'customer_email' or field.name == 'customer_phone' %}
+            <div class="vv-float">
+              {{ field }}
+              <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {% if field.errors %}<p class="invalid-feedback">{{ field.errors.0 }}</p>{% endif %}
+            </div>
+          {% endif %}
+        {% endfor %}
+      </fieldset>
+
+      <fieldset>
+        <legend>Доставка</legend>
+        <div class="checkout-radios">
+          {% for radio in form.shipping_method %}
+            <label class="checkout-radio">{{ radio.tag }} <span>{{ radio.choice_label }}</span></label>
+          {% endfor %}
+        </div>
+        {% if form.shipping_method.errors %}<p class="invalid-feedback">{{ form.shipping_method.errors.0 }}</p>{% endif %}
+
+        <div class="checkout-panel" data-shipping-panel="pickup_salon" hidden>
+          <div class="vv-float">
+            {{ form.salon_id }}
+            <label for="{{ form.salon_id.id_for_label }}">Салон</label>
+            {% if form.salon_id.errors %}<p class="invalid-feedback">{{ form.salon_id.errors.0 }}</p>{% endif %}
+          </div>
+        </div>
+
+        <div class="checkout-panel" data-shipping-panel="np_city" hidden>
+          <div class="vv-float">
+            {{ form.np_city_name }}
+            <label for="{{ form.np_city_name.id_for_label }}">Місто</label>
+            {{ form.np_city_ref }}
+            <ul class="checkout-suggest" data-np-suggest hidden></ul>
+            {% if form.np_city_name.errors %}<p class="invalid-feedback">{{ form.np_city_name.errors.0 }}</p>{% endif %}
+          </div>
+        </div>
+
+        <div class="checkout-panel" data-shipping-panel="np_warehouse" hidden>
+          <div class="vv-float">
+            {{ form.np_warehouse_ref }}
+            <label for="{{ form.np_warehouse_ref.id_for_label }}">Відділення</label>
+            {{ form.np_warehouse_name }}
+            {% if form.np_warehouse_ref.errors %}<p class="invalid-feedback">{{ form.np_warehouse_ref.errors.0 }}</p>{% endif %}
+          </div>
+        </div>
+
+        <div class="checkout-panel" data-shipping-panel="np_courier" hidden>
+          <div class="vv-float">
+            {{ form.shipping_address }}
+            <label for="{{ form.shipping_address.id_for_label }}">Адреса</label>
+            {% if form.shipping_address.errors %}<p class="invalid-feedback">{{ form.shipping_address.errors.0 }}</p>{% endif %}
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Оплата</legend>
+        <div class="checkout-radios">
+          {% for radio in form.payment_method %}
+            <label class="checkout-radio">{{ radio.tag }} <span>{{ radio.choice_label }}</span></label>
+          {% endfor %}
+        </div>
+        {% if form.payment_method.errors %}<p class="invalid-feedback">{{ form.payment_method.errors.0 }}</p>{% endif %}
+      </fieldset>
+
+      <div class="vv-float">
+        {{ form.comment }}
+        <label for="{{ form.comment.id_for_label }}">Коментар</label>
+      </div>
+
+      <button type="submit" class="vv-btn vv-btn--solid">Підтвердити замовлення</button>
+    </form>
+
+    <aside class="vv-summary">
+      <h2>Разом</h2>
+      {% for line in lines %}
+        <div class="vv-sumline">
+          <span>{{ line.item.product.name }} × {{ line.item.qty }}</span>
+          <span>{{ line.line_uah|floatformat:0 }} грн</span>
+        </div>
+      {% endfor %}
+      <div class="vv-sumline">
+        <span>Доставка</span>
+        <span>Безкоштовно</span>
+      </div>
+      <div class="vv-sumtotal">
+        <span>Загалом</span>
+        <span>{{ subtotal|floatformat:0 }} грн</span>
+      </div>
+    </aside>
+  </div>
+</section>
+{% endblock %}
+
+{% block page_js %}
+<script type="module" src="{% static 'js/modules/checkout.js' %}"></script>
+{% endblock %}

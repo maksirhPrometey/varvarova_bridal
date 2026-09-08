@@ -1,0 +1,125 @@
+.partner-hero {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.partner-hero__copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 72px max(var(--vv-pad-x), var(--safe-right)) 80px max(var(--vv-pad-x), var(--safe-left));
+}
+
+.partner-hero__copy h1 {
+  font-size: clamp(38px, 5.4vw, 68px);
+  line-height: 1.08;
+  text-wrap: balance;
+}
+
+.partner-hero__text {
+  max-width: 440px;
+  font-size: 15px;
+  line-height: 1.95;
+  color: #555;
+  font-weight: 300;
+  text-wrap: pretty;
+}
+
+.partner-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 48px;
+  margin-top: 2rem;
+}
+
+.vv-stat {
+  font-family: var(--ff-serif);
+  font-size: 30px;
+  letter-spacing: 0.02em;
+}
+
+.vv-stat + p {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--vv-mute);
+}
+
+.partner-hero__img {
+  position: relative;
+  min-height: 0;
+  aspect-ratio: 4 / 3;
+  background: var(--vv-pearl);
+  overflow: hidden;
+}
+
+.partner-hero__img img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.partner-benefits {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.vv-benefit {
+  padding: 40px 0;
+  border-top: 1px solid var(--vv-line);
+}
+
+.vv-benefit:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.partner-form-note {
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--vv-mute);
+  margin-top: 1.5rem;
+}
+
+.partner-form-section {
+  padding-bottom: 140px;
+}
+
+@media (min-width: 992px) {
+  .partner-hero {
+    grid-template-columns: 1fr 1fr;
+    align-items: stretch;
+  }
+
+  .partner-hero__copy {
+    padding: 120px 72px 120px 48px;
+    order: 1;
+  }
+
+  .partner-hero__img {
+    min-height: 560px;
+    aspect-ratio: auto;
+    order: 2;
+  }
+
+  .partner-benefits {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .vv-benefit {
+    padding: 0 48px;
+    border-top: 0;
+    border-left: 1px solid var(--vv-line);
+  }
+
+  .vv-benefit:first-child {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .vv-benefit:last-child {
+    padding-right: 0;
+  }
+}

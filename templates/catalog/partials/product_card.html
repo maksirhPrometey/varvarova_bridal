@@ -1,0 +1,25 @@
+<article class="vv-card" data-qa="product-card">
+  <div class="vv-card__media">
+    {% with img=product.get_main_image %}
+      {% if img %}
+        <img src="{{ img.image.url }}" alt="{{ img.alt|default:product.name }}" loading="lazy">
+      {% endif %}
+    {% endwith %}
+    {% with images=product.images.all %}
+      {% if images|length > 1 %}
+        <img class="vv-alt" src="{{ images.1.image.url }}" alt="{{ product.name }}" loading="lazy">
+      {% endif %}
+    {% endwith %}
+    <a class="vv-card__link" href="{% url 'catalog:detail' slug=product.slug %}" aria-label="{{ product.name }}"></a>
+    {% include "catalog/partials/wishlist_button.html" with btn_class="vv-wish" svg_size=16 %}
+  </div>
+  <div class="vv-card__body">
+    <h3 class="vv-card__title vv-mb-2">
+      <a href="{% url 'catalog:detail' slug=product.slug %}">{{ product.name }}</a>
+    </h3>
+    {% if product.short_description %}
+      <p class="vv-card__meta vv-mb-2">{{ product.short_description }}</p>
+    {% endif %}
+    <p class="vv-card__price">{{ product.price_uah|floatformat:0 }} грн</p>
+  </div>
+</article>

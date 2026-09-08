@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+{# ============================================================
+   VARVAROVA — Account dashboard / Wishlist
+   Bootstrap 5 grid + HTMX for wishlist removal and add-to-cart.
+
+   Views expected:
+     account_wishlist   -> this page
+     wishlist_remove    -> DELETE/POST, returns partials/_wishlist_grid.html
+     cart_add           -> POST, returns the replaced button (+ OOB cart count)
+     account_profile / account_orders / logout
+   Context: user, wishlist_items
+   Keep #wishlist-grid as the single swap target so the count in the
+   header and the empty state stay in sync — extract it into
+   templates/partials/_wishlist_grid.html and {% include %} it.
+   ============================================================ #}
+
+<style>
+  :root{
+    --vv-white:#FFFFFF; --vv-pearl:#F5F5F5; --vv-ink:#222222;
+    --vv-black:#000000; --vv-mute:#8A8A8A; --vv-line:#EFEFEF; --vv-hair:#DDDDDD;
+  }
+  body{ background:var(--vv-white); color:var(--vv-ink); font-family:'Inter',sans-serif; }
+  .vv-serif{ font-family:'Playfair Display',serif; font-weight:400; }
+  .vv-eyebrow{ font-size:10px; letter-spacing:.32em; text-transform:uppercase; color:var(--vv-mute); }
+  .vv-pad{ padding-left:48px; padding-right:48px; }
+  @media (max-width:767px){ .vv-pad{ padding-left:20px; padding-right:20px; } }
+
+  /* ---- Sidebar ---- */
+  .vv-side{ position:sticky; top:110px; border-right:1px solid var(--vv-line); padding-right:40px; }
+  .vv-side__nav{ display:flex; flex-direction:column; gap:2px; }
+  .vv-side__nav a{ padding:13px 16px; margin-left:-16px; border-left:1px solid transparent;
+      font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--vv-mute);
+      text-decoration:none; transition:background .3s ease, color .3s ease; }
+  .vv-side__nav a:hover{ color:var(--vv-ink); background:var(--vv-pearl); }
+  .vv-side__nav a.is-active{ color:var(--vv-ink); background:var(--vv-pearl); border-left-color:var(--vv-ink); }
+  @media (max-width:991px){
+    .vv-side{ position:static; border-right:0; padding-right:0;
+              border-bottom:1px solid var(--vv-line); }
+    .vv-side__head{ display:none; }
+    .vv-side__nav{ flex-direction:row; gap:0; overflow-x:auto; }
+    .vv-side__nav a{ white-space:nowrap; padding:14px 20px; margin-left:0; border-left:0; }
+    .vv-side__nav a.is-active{ border-left:0; border-bottom:1px solid var(--vv-ink); }
+  }
+
+  /* ---- Wishlist cards ---- */
+  .vv-card__media{ position:relative; aspect-ratio:3/4.2; background:var(--vv-pearl); overflow:hidden; }
+  .vv-card__media img{ width:100%; height:100%; object-fit:cover;
+      transition:transform 1.3s cubic-bezier(.2,.8,.3,1); }
+  .vv-card:hover .vv-card__media img{ transform:scale(1.03); }
+  .vv-x{ position:absolute; top:16px; right:16px; z-index:2; width:36px; height:36px; border:0;
+      padding:0; border-radius:50%; background:rgba(255,255,255,.9); display:grid;
+      place-items:center; cursor:pointer; transition:background .3s ease; }
+  .vv-x:hover{ background:#fff; }
+  .vv-flag{ position:absolute; left:16px; top:16px; padding:6px 12px; background:rgba(255,255,255,.92);
+      font-size:9px; letter-spacing:.18em; text-transform:uppercase; }
+  .vv-add{ width:100%; padding:16px 20px; background:transparent; color:var(--vv-ink);
+      border:1px solid var(--vv-ink); font-size:10.5px; letter-spacing:.2em;
+      text-transform:uppercase; transition:background .3s ease, color .3s ease; }
+  .vv-add:hover{ background:var(--vv-ink); color:#fff; }
+
+  .vv-primary{ display:inline-block; padding:19px 52px; background:var(--vv-ink); color:#fff;
+      font-size:11px; letter-spacing:.22em; text-transform:uppercase; text-decoration:none;
+      transition:background .35s ease; }
+  .vv-primary:hover{ background:var(--vv-black); color:#fff; }
+  .htmx-request.vv-card{ opacity:.4; transition:opacity .15s ease; }
+</style>
+
+<div class="vv-pad" style="padding-top:72px; padding-bottom:140px;">
+  <div class="row" style="--bs-gutter-x:72px; row-gap:40px;">
+
+    <!-- ---------- LEFT: sidebar (~25%) ---------- -->
+    <div class="col-12 col-lg-3">
+      <aside class="vv-side">
+        <div class="vv-side__head pb-4 mb-4" style="border-bottom:1px solid var(--vv-line);">
+          <p class="mb-2" style="font-size:10px; letter-spacing:.28em; text-transform:uppercase; color:var(--vv-mute);">Акаунт</p>
+          <p class="vv-serif mb-1" style="font-size:22px; letter-spacing:.03em;">{{ user.get_full_name|default:user.username }}</p>
+          <p class="mb-0" style="font-size:12px; font-weight:300; color:var(--vv-mute);">{{ user.email }}</p>
+        </div>
+        <nav class="vv-side__nav">
+          <a href="{% url 'account_profile' %}">Мої дані</a>
+          <a href="{% url 'account_orders' %}">Історія замовлень</a>
+          <a href="{% url 'account_wishlist' %}" class="is-active" aria-current="page">Wishlist</a>
+          <a href="{% url 'logout' %}">Вийти</a>
+        </nav>
+      </aside>
+    </div>
+
+    <!-- ---------- RIGHT: main content (~75%) ---------- -->
+    <div class="col-12 col-lg-9">
+      <main>
+
+        <div id="wishlist-grid">
+          <div class="d-flex align-items-end justify-content-between flex-wrap gap-4 pb-4"
+               style="border-bottom:1px solid var(--vv-line);">
+            <div>
+              <p class="vv-eyebrow mb-3">
+                {% if wishlist_items %}
+                  {{ wishlist_items|length }} {{ wishlist_items|length|pluralize:"збережена модель,збережені моделі,збережених моделей" }}
+                {% else %}Порожньо{% endif %}
+              </p>
+              <h1 class="vv-serif mb-0" style="font-size:clamp(30px,3.6vw,44px); letter-spacing:.03em;">
+                Мій Wishlist
+              </h1>
+            </div>
+            {% if wishlist_items %}
+              <a href="{% url 'wishlist_share' %}"
+                 style="font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--vv-mute);
+                        border-bottom:1px solid var(--vv-hair); padding-bottom:6px; text-decoration:none;">
+                Поділитися підбіркою
+              </a>
+            {% endif %}
+          </div>
+
+          {% if wishlist_items %}
+            <div class="row" style="padding-top:48px; row-gap:56px; --bs-gutter-x:36px;">
+              {% for item in wishlist_items %}
+                <article class="col-12 col-sm-6 col-xl-4 vv-card" id="wish-{{ item.pk }}">
+                  <div class="vv-card__media">
+                    <a href="{{ item.product.get_absolute_url }}">
+                      <img src="{{ item.product.image.url|default:'https://source.unsplash.com/900x1260/?wedding-dress,bridal' }}"
+                           alt="{{ item.product.name }}" loading="lazy">
+                    </a>
+                    <button type="button" class="vv-x" aria-label="Видалити з Wishlist"
+                            hx-delete="{% url 'wishlist_remove' item.pk %}"
+                            hx-target="#wishlist-grid"
+                            hx-swap="outerHTML"
+                            hx-headers='{"X-CSRFToken":"{{ csrf_token }}"}'>
+                      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="var(--vv-ink)" stroke-width="1.2">
+                        <path d="M1 1l8 8M9 1l-8 8"/>
+                      </svg>
+                    </button>
+                    {% if item.product.is_last_one %}
+                      <span class="vv-flag">Остання одиниця</span>
+                    {% endif %}
+                  </div>
+
+                  <h2 class="vv-serif mt-4 mb-2" style="font-size:20px; letter-spacing:.05em;">
+                    <a href="{{ item.product.get_absolute_url }}" style="color:inherit; text-decoration:none;">{{ item.product.name }}</a>
+                  </h2>
+                  <p class="mb-2" style="font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--vv-mute);">
+                    {{ item.product.silhouette }} · {{ item.product.collection }}
+                  </p>
+                  <p class="mb-4" style="font-size:13.5px; letter-spacing:.06em;">{{ item.product.price_display }}</p>
+
+                  <button type="button" class="vv-add"
+                          hx-post="{% url 'cart_add' item.product.pk %}"
+                          hx-swap="outerHTML"
+                          hx-headers='{"X-CSRFToken":"{{ csrf_token }}"}'>
+                    Додати в кошик
+                  </button>
+                </article>
+              {% endfor %}
+            </div>
+
+          {% else %}
+            <!-- ---------- EMPTY STATE ---------- -->
+            <div class="d-flex flex-column align-items-center text-center"
+                 style="padding:110px 0 90px;">
+              <div style="width:104px; height:104px; border-radius:50%; background:var(--vv-pearl);
+                          display:grid; place-items:center; margin-bottom:38px;">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--vv-mute)" stroke-width="1.1">
+                  <path d="M12 20.5 4.2 12.9a4.7 4.7 0 0 1 6.6-6.7l1.2 1.1 1.2-1.1a4.7 4.7 0 0 1 6.6 6.7z"/>
+                </svg>
+              </div>
+              <h2 class="vv-serif mb-3" style="font-size:30px; letter-spacing:.02em;">Тут поки порожньо</h2>
+              <p class="fw-light mb-5" style="max-width:400px; font-size:14px; line-height:1.9; color:#555; text-wrap:pretty;">
+                Натисніть на сердечко біля будь-якої моделі — вона зʼявиться тут, і ви зможете
+                показати підбірку консультанту в салоні.
+              </p>
+              <a href="{% url 'catalog' %}" class="vv-primary">Перейти до каталогу</a>
+            </div>
+          {% endif %}
+        </div>
+
+      </main>
+    </div>
+
+  </div>
+</div>
+{% endblock content %}

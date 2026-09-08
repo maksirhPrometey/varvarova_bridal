@@ -1,0 +1,146 @@
+.content-page {
+  padding-top: 96px;
+  padding-bottom: 120px;
+  max-width: 760px;
+}
+
+.content-page h1 {
+  margin-bottom: 40px;
+}
+
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--vv-line);
+}
+
+.faq-item {
+  border-bottom: 1px solid var(--vv-line);
+}
+
+.faq-item__question {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  list-style: none;
+  cursor: pointer;
+  padding: 22px 0;
+  font-family: var(--ff-serif);
+  font-size: clamp(20px, 3vw, 28px);
+  letter-spacing: 0.03em;
+}
+
+.faq-item__question::-webkit-details-marker {
+  display: none;
+}
+
+.faq-item__toggle {
+  width: 10px;
+  height: 10px;
+  border-right: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  transform: rotate(45deg);
+  flex-shrink: 0;
+}
+
+.faq-item[open] .faq-item__toggle {
+  transform: rotate(-135deg);
+}
+
+.faq-item__answer {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s var(--ease-out);
+}
+
+.faq-item[open] .faq-item__answer {
+  grid-template-rows: 1fr;
+}
+
+.faq-item__answer-inner {
+  overflow: hidden;
+  padding-bottom: 28px;
+  font-size: 14px;
+  line-height: 1.85;
+  font-weight: 300;
+  color: #555;
+}
+
+.content-page__body {
+  font-size: 15px;
+  line-height: 1.95;
+  font-weight: 300;
+  color: #555;
+}
+
+.content-page__body p + p {
+  margin-top: 1.25rem;
+}
+
+.content-list {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.content-list article h2,
+.content-list article h3 {
+  font-family: var(--ff-serif);
+  font-weight: 400;
+  font-size: 28px;
+  letter-spacing: 0.03em;
+  margin-bottom: 12px;
+}
+
+.content-list article p,
+.content-list article .content-meta {
+  font-size: 14px;
+  line-height: 1.85;
+  color: #555;
+  font-weight: 300;
+}
+
+.content-meta {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--vv-mute);
+  margin-bottom: 10px;
+}
+
+.content-contacts {
+  margin-top: 40px;
+  font-size: 14px;
+  line-height: 1.9;
+  color: #555;
+}
+
+.brides-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.brides-grid figure {
+  background: var(--vv-pearl);
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+}
+
+.brides-grid img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@media (min-width: 992px) {
+  .brides-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .content-page {
+    padding-top: 140px;
+    padding-bottom: 140px;
+  }
+}

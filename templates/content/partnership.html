@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/pages/partnership.css' %}">
+<link rel="stylesheet" href="{% static 'css/pages/content.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="partner-hero">
+  <div class="partner-hero__copy rise-in">
+    <p class="vv-eyebrow vv-mb-5">Оптовим партнерам</p>
+    <h1 class="vv-serif vv-mb-4">{{ page.title }}</h1>
+    <div class="partner-hero__text">{{ page.body|safe }}</div>
+    {% if is_stub %}
+      {% include "partials/stub_notice.html" with message="Текст партнерки з адмінки ще не опубліковано (slug partnership)." %}
+    {% endif %}
+  </div>
+  <div class="partner-hero__img" aria-hidden="true"></div>
+</section>
+
+<section class="vv-pad vv-section">
+  <p class="vv-eyebrow vv-mb-3 reveal">Умови співпраці</p>
+  <h2 class="vv-serif vv-mb-5 reveal">Що отримує салон-партнер</h2>
+  <div class="partner-benefits">
+    <div class="vv-benefit reveal">
+      <h3 class="vv-serif vv-mb-3">Ексклюзивні ціни</h3>
+      <p class="fw-light vv-mb-0">Оптовий прайс напряму з виробництва та закріплена територія.</p>
+    </div>
+    <div class="vv-benefit reveal">
+      <h3 class="vv-serif vv-mb-3">Міжнародне визнання</h3>
+      <p class="fw-light vv-mb-0">Позиція у мережі салонів і підтримка бренду на ринку.</p>
+    </div>
+    <div class="vv-benefit reveal">
+      <h3 class="vv-serif vv-mb-3">Маркетингова підтримка</h3>
+      <p class="fw-light vv-mb-0">Кампейн-матеріали, лукбуки та спільні trunk show.</p>
+    </div>
+  </div>
+</section>
+
+<section class="vv-pad partner-form-section">
+  <div class="vv-formcard reveal" data-reveal-hold>
+    {% include "content/partials/partner_form.html" %}
+  </div>
+</section>
+{% endblock %}

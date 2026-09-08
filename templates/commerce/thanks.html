@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/pages/checkout.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="vv-pad thanks-page rise-in">
+  <p class="vv-eyebrow">Замовлення прийнято</p>
+  <h1>Дякуємо</h1>
+  <p class="thanks-number">{{ order.number }}</p>
+  <p>Ми отримали заявку і скоро звʼяжемось щодо примірки та деталей.</p>
+
+  <div class="thanks-facts">
+    {% for item in order.items.all %}
+      <div>
+        <span>{{ item.name_snapshot }} × {{ item.qty }}</span>
+        <span>{{ item.line_total_uah|floatformat:0 }} грн</span>
+      </div>
+    {% endfor %}
+    <div>
+      <span>Разом</span>
+      <span>{{ order.total_uah|floatformat:0 }} грн</span>
+    </div>
+    <div>
+      <span>Доставка</span>
+      <span>{{ order.get_shipping_method_display }}</span>
+    </div>
+  </div>
+
+  {% if order.payment_method == 'bank' %}
+    <div class="thanks-bank">
+      <h2>Оплата на рахунок</h2>
+      {% if bank.recipient %}<p><span>Отримувач</span><span>{{ bank.recipient }}</span></p>{% endif %}
+      {% if bank.iban %}<p><span>IBAN</span><span>{{ bank.iban }}</span></p>{% endif %}
+      {% if bank.edrpou %}<p><span>ЄДРПОУ</span><span>{{ bank.edrpou }}</span></p>{% endif %}
+      {% if bank.bank_name %}<p><span>Банк</span><span>{{ bank.bank_name }}</span></p>{% endif %}
+      <p><span>Призначення</span><span>Оплата {{ order.number }}</span></p>
+      {% if not bank.iban %}
+        <p>Реквізити надішлемо на {{ order.customer_email }}.</p>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  {% if request.user.is_authenticated %}
+    <a class="vv-btn vv-btn--solid" href="{% url 'commerce:account_order_detail' number=order.number %}">До замовлення</a>
+  {% else %}
+    <a class="vv-btn vv-btn--solid" href="{% url 'catalog:list' slug='wedding' %}">До каталогу</a>
+  {% endif %}
+</section>
+{% endblock %}

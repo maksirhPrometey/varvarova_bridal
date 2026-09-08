@@ -1,0 +1,256 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+{# ============================================================
+   VARVAROVA — B2B / Wholesale partnership
+   Bootstrap 5 grid + HTMX form submit (form is replaced by the
+   success panel; on validation errors the view re-renders the form
+   partial with errors, same target).
+
+   Views expected:
+     b2b_partner  -> GET full page / POST handler
+   Put the <form> block in templates/partials/_b2b_form.html and
+   {% include %} it, so the POST response can render just the partial.
+   ============================================================ #}
+
+<style>
+  :root{
+    --vv-white:#FFFFFF; --vv-pearl:#F5F5F5; --vv-ink:#222222;
+    --vv-black:#000000; --vv-mute:#8A8A8A; --vv-line:#EFEFEF; --vv-hair:#D3D3D3;
+  }
+  body{ background:var(--vv-white); color:var(--vv-ink); font-family:'Inter',sans-serif; }
+  .vv-serif{ font-family:'Playfair Display',serif; font-weight:400; }
+  .vv-eyebrow{ font-size:10px; letter-spacing:.32em; text-transform:uppercase; color:var(--vv-mute); }
+  .vv-pad{ padding-left:48px; padding-right:48px; }
+  @media (max-width:767px){ .vv-pad{ padding-left:20px; padding-right:20px; } }
+
+  /* ---- Hero ---- */
+  .vv-hero__copy{ display:flex; flex-direction:column; justify-content:center;
+                  padding:120px 72px 120px 48px; }
+  .vv-hero__img{ position:relative; min-height:560px; background:var(--vv-pearl); overflow:hidden; }
+  .vv-hero__img img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  @media (max-width:991px){
+    .vv-hero__copy{ padding:72px 48px 80px; }
+    .vv-hero__img{ min-height:0; aspect-ratio:4/3; }
+  }
+  .vv-stat{ font-family:'Playfair Display',serif; font-size:30px; letter-spacing:.02em; }
+  .vv-stat + p{ font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:var(--vv-mute); }
+
+  /* ---- Benefits ---- */
+  .vv-benefit{ padding:0 48px; border-left:1px solid var(--vv-line); }
+  .vv-benefit:first-child{ padding-left:0; border-left:0; }
+  .vv-benefit:last-child{ padding-right:0; }
+  @media (max-width:991px){
+    .vv-benefit{ padding:40px 0 !important; border-left:0; border-top:1px solid var(--vv-line); }
+    .vv-benefit:first-child{ border-top:0; padding-top:0 !important; }
+  }
+
+  /* ---- Form card ---- */
+  .vv-formcard{ background:var(--vv-pearl); padding:84px 88px; }
+  @media (max-width:767px){ .vv-formcard{ padding:48px 24px; } }
+
+  /* Floating-label fields */
+  .vv-float{ position:relative; }
+  .vv-float .form-control{
+    width:100%; padding:16px 2px; background:none; border:0; border-bottom:1px solid var(--vv-hair);
+    border-radius:0; box-shadow:none; font-size:14px; letter-spacing:.04em; color:var(--vv-ink); }
+  .vv-float .form-control:focus{ background:none; border-bottom-color:var(--vv-ink); box-shadow:none; }
+  .vv-float .form-control::placeholder{ color:transparent; }
+  .vv-float label{ position:absolute; left:2px; top:16px; font-size:13px; font-weight:300;
+    color:var(--vv-mute); pointer-events:none; transform-origin:left top;
+    transition:transform .25s ease, font-size .25s ease, letter-spacing .25s ease; }
+  .vv-float .form-control:focus + label,
+  .vv-float .form-control:not(:placeholder-shown) + label{
+    transform:translateY(-19px); font-size:9.5px; letter-spacing:.22em; text-transform:uppercase; }
+  .vv-float textarea.form-control{ resize:none; min-height:84px; }
+  .vv-float .invalid-feedback{ display:block; font-size:11px; letter-spacing:.06em; color:#A33; }
+
+  .vv-submit{ padding:22px 62px; background:var(--vv-ink); color:#fff; border:0;
+    font-size:11px; letter-spacing:.22em; text-transform:uppercase; transition:background .35s ease; }
+  .vv-submit:hover{ background:var(--vv-black); color:#fff; }
+  .htmx-request .vv-submit{ opacity:.5; pointer-events:none; }
+</style>
+
+<!-- ===================== 1. HERO ===================== -->
+<section>
+  <div class="row g-0 align-items-stretch">
+    <div class="col-12 col-lg-6 order-2 order-lg-1">
+      <div class="vv-hero__copy">
+        <p class="vv-eyebrow mb-5">Оптовим партнерам</p>
+        <h1 class="vv-serif mb-4" style="font-size:clamp(38px,5.4vw,68px); line-height:1.08; text-wrap:balance;">
+          Стати партнером
+        </h1>
+        <p class="fw-light mb-5" style="max-width:440px; font-size:15px; line-height:1.95; color:#555; text-wrap:pretty;">
+          Понад 400 салонів у 38 країнах працюють з Varvarova напряму з виробництва у Львові.
+          Без посередників, з гарантованою маржею та підтримкою на кожному етапі.
+        </p>
+        <div class="d-flex flex-wrap" style="gap:48px;">
+          <div><p class="vv-stat mb-1">38</p><p class="mb-0">країн</p></div>
+          <div><p class="vv-stat mb-1">400+</p><p class="mb-0">салонів</p></div>
+          <div><p class="vv-stat mb-1">24</p><p class="mb-0">роки на ринку</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-lg-6 order-1 order-lg-2">
+      <div class="vv-hero__img">
+        <img src="{{ page.hero_image.url|default:'https://source.unsplash.com/1400x1200/?luxury-boutique,fashion-business' }}"
+             alt="Партнерський салон Varvarova" loading="lazy">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 2. BENEFITS ===================== -->
+<section class="vv-pad" style="padding-top:130px; padding-bottom:120px;">
+  <div style="max-width:620px; margin-bottom:72px;">
+    <p class="vv-eyebrow mb-3">Умови співпраці</p>
+    <h2 class="vv-serif mb-0" style="font-size:clamp(28px,3.4vw,42px); line-height:1.2; text-wrap:balance;">
+      Що отримує салон-партнер
+    </h2>
+  </div>
+
+  <div class="row g-0">
+    <div class="col-12 col-lg-4">
+      <div class="vv-benefit">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--vv-ink)" stroke-width="1" style="margin-bottom:30px;">
+          <path d="M12 2.5 21 7v10l-9 4.5L3 17V7z"/><path d="M3 7l9 4.5L21 7M12 21.5V11.5"/>
+        </svg>
+        <h3 class="vv-serif mb-3" style="font-size:24px; letter-spacing:.03em;">Ексклюзивні ціни</h3>
+        <p class="fw-light mb-0" style="font-size:13.5px; line-height:1.95; color:#555; max-width:330px; text-wrap:pretty;">
+          Оптовий прайс напряму з виробництва, гнучкі обсяги першого замовлення та закріплена територія без конкуренції поруч.
+        </p>
+      </div>
+    </div>
+    <div class="col-12 col-lg-4">
+      <div class="vv-benefit">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--vv-ink)" stroke-width="1" style="margin-bottom:30px;">
+          <circle cx="12" cy="12" r="9.2"/><path d="M2.8 12h18.4M12 2.8c2.6 2.6 2.6 15.8 0 18.4-2.6-2.6-2.6-15.8 0-18.4z"/>
+        </svg>
+        <h3 class="vv-serif mb-3" style="font-size:24px; letter-spacing:.03em;">Міжнародне визнання</h3>
+        <p class="fw-light mb-0" style="font-size:13.5px; line-height:1.95; color:#555; max-width:330px; text-wrap:pretty;">
+          Бренд, представлений на Barcelona Bridal Week та в салонах Мілана, Варшави й Торонто. Позиція у пошуку салонів на сайті.
+        </p>
+      </div>
+    </div>
+    <div class="col-12 col-lg-4">
+      <div class="vv-benefit">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--vv-ink)" stroke-width="1" style="margin-bottom:30px;">
+          <path d="M3.5 9.5h4l7-4.5v14l-7-4.5h-4z"/><path d="M18 9.2c1.4 1.6 1.4 4 0 5.6"/>
+        </svg>
+        <h3 class="vv-serif mb-3" style="font-size:24px; letter-spacing:.03em;">Маркетингова підтримка</h3>
+        <p class="fw-light mb-0" style="font-size:13.5px; line-height:1.95; color:#555; max-width:330px; text-wrap:pretty;">
+          Кампейн-фото і відео кожної колекції, друковані лукбуки, POS-матеріали та спільні trunk show у вашому місті.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 3. APPLICATION FORM ===================== -->
+<section class="vv-pad" style="padding-bottom:140px;">
+  <div class="vv-formcard">
+
+    {% if submitted %}
+      {# ---- Success panel (what the POST response swaps in) ---- #}
+      <div id="b2b-form" class="text-center mx-auto" style="max-width:520px; padding:40px 0 44px;">
+        <div style="width:62px; height:62px; margin:0 auto 34px; border-radius:50%;
+                    border:1px solid var(--vv-ink); display:grid; place-items:center;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--vv-ink)" stroke-width="1.1">
+            <path d="M4 12.5l5 5L20 6.5"/>
+          </svg>
+        </div>
+        <h2 class="vv-serif mb-3" style="font-size:32px; letter-spacing:.02em;">Заявку надіслано</h2>
+        <p class="fw-light mb-0" style="font-size:14px; line-height:1.95; color:#555;">
+          Дякуємо. Наш менеджер з розвитку партнерської мережі звʼяжеться з вами протягом
+          двох робочих днів на вказану пошту.
+        </p>
+      </div>
+
+    {% else %}
+      <form id="b2b-form"
+            hx-post="{% url 'b2b_partner' %}"
+            hx-target="this"
+            hx-swap="outerHTML"
+            hx-disabled-elt="find button[type=submit]"
+            novalidate>
+        {% csrf_token %}
+
+        <div style="max-width:560px; margin-bottom:60px;">
+          <p class="vv-eyebrow mb-3">Заявка</p>
+          <h2 class="vv-serif mb-3" style="font-size:clamp(26px,3vw,36px); line-height:1.24; text-wrap:balance;">
+            Розкажіть про ваш салон
+          </h2>
+          <p class="fw-light mb-0" style="font-size:13.5px; line-height:1.95; color:#555;">
+            Поля, позначені зірочкою, обовʼязкові. Ми надішлемо прайс і умови після короткої перевірки.
+          </p>
+        </div>
+
+        {% if form.non_field_errors %}
+          <p class="mb-4" style="font-size:12px; color:#A33;">{{ form.non_field_errors|join:" " }}</p>
+        {% endif %}
+
+        <div class="row" style="max-width:900px; row-gap:44px; --bs-gutter-x:56px;">
+          <div class="col-12 col-md-6 vv-float">
+            <input type="text" class="form-control" id="id_company" name="company"
+                   value="{{ form.company.value|default:'' }}" placeholder=" " required>
+            <label for="id_company">Компанія *</label>
+            {% if form.company.errors %}<div class="invalid-feedback">{{ form.company.errors|join:" " }}</div>{% endif %}
+          </div>
+
+          <div class="col-12 col-md-6 vv-float">
+            <input type="text" class="form-control" id="id_contact_person" name="contact_person"
+                   value="{{ form.contact_person.value|default:'' }}" placeholder=" " required>
+            <label for="id_contact_person">Контактна особа *</label>
+            {% if form.contact_person.errors %}<div class="invalid-feedback">{{ form.contact_person.errors|join:" " }}</div>{% endif %}
+          </div>
+
+          <div class="col-12 col-md-6 vv-float">
+            <input type="text" class="form-control" id="id_country" name="country"
+                   value="{{ form.country.value|default:'' }}" placeholder=" " required>
+            <label for="id_country">Країна *</label>
+            {% if form.country.errors %}<div class="invalid-feedback">{{ form.country.errors|join:" " }}</div>{% endif %}
+          </div>
+
+          <div class="col-12 col-md-6 vv-float">
+            <input type="text" class="form-control" id="id_city" name="city"
+                   value="{{ form.city.value|default:'' }}" placeholder=" " required>
+            <label for="id_city">Місто *</label>
+            {% if form.city.errors %}<div class="invalid-feedback">{{ form.city.errors|join:" " }}</div>{% endif %}
+          </div>
+
+          <div class="col-12 col-md-6 vv-float">
+            <input type="email" class="form-control" id="id_email" name="email"
+                   value="{{ form.email.value|default:'' }}" placeholder=" " required>
+            <label for="id_email">Email *</label>
+            {% if form.email.errors %}<div class="invalid-feedback">{{ form.email.errors|join:" " }}</div>{% endif %}
+          </div>
+
+          <div class="col-12 col-md-6 vv-float">
+            <input type="tel" class="form-control" id="id_phone" name="phone"
+                   value="{{ form.phone.value|default:'' }}" placeholder=" " required>
+            <label for="id_phone">Телефон *</label>
+            {% if form.phone.errors %}<div class="invalid-feedback">{{ form.phone.errors|join:" " }}</div>{% endif %}
+          </div>
+
+          <div class="col-12 vv-float">
+            <textarea class="form-control" id="id_links" name="links" rows="3"
+                      placeholder=" ">{{ form.links.value|default:'' }}</textarea>
+            <label for="id_links">Посилання на соцмережі або сайт</label>
+            {% if form.links.errors %}<div class="invalid-feedback">{{ form.links.errors|join:" " }}</div>{% endif %}
+          </div>
+        </div>
+
+        <div class="d-flex align-items-center flex-wrap" style="gap:40px; margin-top:56px;">
+          <button type="submit" class="vv-submit">Надіслати заявку</button>
+          <p class="mb-0" style="max-width:320px; font-size:11px; line-height:1.85; font-weight:300; color:var(--vv-mute);">
+            Надсилаючи заявку, ви погоджуєтесь з обробкою даних згідно з
+            <a href="{% url 'privacy' %}" style="color:inherit; text-decoration:underline; text-underline-offset:3px;">політикою конфіденційності</a>.
+          </p>
+        </div>
+      </form>
+    {% endif %}
+
+  </div>
+</section>
+{% endblock content %}
