@@ -2,6 +2,15 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q
 
+from src.content.home_models import HomePage  # noqa: F401
+from src.content.landing_models import (  # noqa: F401
+    CarePage,
+    ContactsPage,
+    DeliveryPage,
+    OfferPage,
+    PartnershipPage,
+    PrivacyPage,
+)
 from src.core.models import CreatedAtModel, SeoFieldsMixin, TimeStampedModel, UpdatedAtModel
 
 
@@ -47,6 +56,17 @@ class SiteSettings(UpdatedAtModel):
         return self.site_name
 
 
+TYPED_PAGE_SLUGS = frozenset({
+    'about',
+    'partnership',
+    'delivery',
+    'care',
+    'offer',
+    'privacy',
+    'contacts',
+})
+
+
 class Page(SeoFieldsMixin, UpdatedAtModel):
     slug = models.SlugField('Slug', max_length=128, unique=True)
     title = models.CharField('Заголовок', max_length=255)
@@ -58,8 +78,76 @@ class Page(SeoFieldsMixin, UpdatedAtModel):
         verbose_name = 'Сторінка'
         verbose_name_plural = 'Сторінки'
 
+    def clean(self):
+        super().clean()
+        if self.slug in TYPED_PAGE_SLUGS:
+            raise ValidationError(
+                {'slug': 'Цю сторінку редагують окремим пунктом у Контент.'}
+            )
+
     def __str__(self) -> str:
         return self.title
+
+
+class AboutPage(SeoFieldsMixin, UpdatedAtModel):
+    page_title = models.CharField(
+        'Назва у вкладці',
+        max_length=128,
+        help_text='Заголовок вкладки браузера. Якщо SEO-заголовок порожній — візьметься він.',
+    )
+    eyebrow = models.CharField(
+        'Надзаголовок',
+        max_length=64,
+        help_text='Дрібний рядок над великим заголовком, зараз «Філософія».',
+    )
+    heading = models.CharField(
+        'Заголовок',
+        max_length=128,
+        help_text='Текст до курсиву, зараз «Світ».',
+    )
+    heading_em = models.CharField(
+        'Виділене слово',
+        max_length=64,
+        blank=True,
+        help_text='Курсив у заголовку, зараз «VARVAROVA». Можна лишити порожнім.',
+    )
+    lede = models.TextField(
+        'Лід',
+        help_text='Перший абзац під заголовком.',
+    )
+    body = models.TextField(
+        'Основний текст',
+        help_text='Другий абзац під лідом.',
+    )
+    is_published = models.BooleanField('Опубліковано', default=True)
+
+    class Meta:
+        db_table = 'content_about_page'
+        verbose_name = 'Про бренд'
+        verbose_name_plural = 'Про бренд'
+        constraints = [
+            models.CheckConstraint(
+                condition=Q(id=1),
+                name='content_about_page_singleton',
+            ),
+        ]
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        raise ValidationError('Singleton не можна видаляти.')
+
+    @classmethod
+    def load(cls) -> 'AboutPage':
+        from src.content.stubs import ABOUT_DEFAULTS
+
+        obj, _created = cls.objects.get_or_create(pk=1, defaults=ABOUT_DEFAULTS)
+        return obj
+
+    def __str__(self) -> str:
+        return self.page_title or 'Про бренд'
 
 
 class FaqItem(models.Model):
@@ -186,7 +274,14 @@ class Banner(models.Model):
 
 
 class TrunkShow(models.Model):
-    title = models.CharField('Назва', max_length=255)
+    home_page = models.ForeignKey(
+        HomePage,
+        on_delete=models.CASCADE,
+        related_name='events',
+        verbose_name='Головна',
+        default=1,
+    )
+    title = models.CharField('Назва', max_length=255, blank=True)
     city = models.CharField('Місто', max_length=128, null=True, blank=True)
     place = models.CharField('Місце', max_length=255, null=True, blank=True)
     starts_at = models.DateTimeField('Початок')
@@ -196,12 +291,24 @@ class TrunkShow(models.Model):
 
     class Meta:
         db_table = 'content_trunk_show'
-        verbose_name = 'Trunk-show'
-        verbose_name_plural = 'Trunk-show'
+        verbose_name = 'Подія'
+        verbose_name_plural = 'Події'
         ordering = ['-starts_at']
 
+    def clean(self):
+        super().clean()
+        if not (self.city or self.title):
+            raise ValidationError({'city': 'Вкажіть місто.'})
+
+    def save(self, *args, **kwargs):
+        if not self.home_page_id:
+            self.home_page_id = 1
+        if not self.title:
+            self.title = (self.city or self.place or 'Подія')[:255]
+        super().save(*args, **kwargs)
+
     def __str__(self) -> str:
-        return self.title
+        return self.city or self.title or 'Подія'
 
 
 class BrideGalleryItem(models.Model):
@@ -256,3 +363,41 @@ class PartnerApplication(CreatedAtModel):
 
     def __str__(self) -> str:
         return self.company_name
+
+
+class FittingRequest(CreatedAtModel):
+    class Status(models.TextChoices):
+        NEW = 'new', 'Нова'
+        IN_PROGRESS = 'in_progress', 'В роботі'
+        DONE = 'done', 'Оброблена'
+
+    name = models.CharField('Імʼя', max_length=255)
+    phone = models.CharField('Телефон', max_length=32)
+    email = models.EmailField('Email', null=True, blank=True)
+    product = models.ForeignKey(
+        'catalog.Product',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='fitting_requests',
+        verbose_name='Модель',
+    )
+    product_name = models.CharField('Модель', max_length=255, blank=True)
+    message = models.TextField('Коментар', null=True, blank=True)
+    status = models.CharField(
+        'Статус',
+        max_length=16,
+        choices=Status.choices,
+        default=Status.NEW,
+    )
+
+    class Meta:
+        db_table = 'content_fitting_request'
+        verbose_name = 'Заявка на примірку'
+        verbose_name_plural = 'Заявки на примірку'
+        ordering = ['-created_at']
+
+    def __str__(self) -> str:
+        if self.product_name:
+            return f'{self.name} — {self.product_name}'
+        return self.name

@@ -4,7 +4,7 @@ from django.utils import timezone
 
 from src.catalog.models import Product
 from src.content.models import (
-    Banner,
+    AboutPage,
     BlogPost,
     BrideGalleryItem,
     FaqItem,
@@ -15,56 +15,26 @@ from src.content.models import (
     SiteSettings,
     TrunkShow,
 )
-from src.core.seed.images import as_file, render_banner, render_cover
-
-PAGES = [
-    (
-        'about',
-        'Про бренд',
-        'Varvarova — львівське ательє весільних і вечірніх суконь. '
-        'Кожну модель збираємо вручну: від лекал до фінальної примірки. '
-        'Працюємо з салонами в Україні та за кордоном, зберігаючи єдиний стандарт посадки.',
-    ),
-    (
-        'delivery',
-        'Доставка і примірка',
-        'Доставка Новою Поштою по Україні або курʼєром у Львові. '
-        'Самовивіз із салону на вул. Січових Стрільців. '
-        'Весільні сукні пакуємо в чохол. Міжнародна відправка — за запитом менеджера.',
-    ),
-    (
-        'care',
-        'Догляд за сукнею',
-        'Зберігайте сукню в чохлі, далеко від прямого сонця. '
-        'Чистка — лише в ательє або спеціалізованому сервісі. '
-        'Не відпарюйте мереживо парою впритул. Після церемонії рекомендуємо професійну консервацію.',
-    ),
-    (
-        'offer',
-        'Публічна оферта',
-        'Цей текст є публічною офертою магазину Varvarova. '
-        'Замовляючи сукню, ви підтверджуєте згоду з умовами оплати, доставки та повернення, '
-        'описаними на цій сторінці та в листуванні з менеджером.',
-    ),
-    (
-        'privacy',
-        'Політика конфіденційності',
-        'Ми зберігаємо імʼя, телефон і email лише для замовлення та запису на примірку. '
-        'Дані не передаємо третім сторонам, окрім служби доставки та платіжного сервісу.',
-    ),
-    (
-        'contacts',
-        'Контакти',
-        'Салон і виробництво: Львів. Запис на примірку — за телефоном або формою на сайті. '
-        'Для оптових запитів пишіть на сторінку партнерства.',
-    ),
-    (
-        'partnership',
-        'Стати партнером',
-        'Понад 400 салонів працюють з Varvarova напряму з виробництва у Львові. '
-        'Партнер отримує оптовий прайс, закріплену територію та кампейн-матеріали колекції.',
-    ),
-]
+from src.content.home_models import HomePage
+from src.content.landing_models import (
+    CarePage,
+    ContactsPage,
+    DeliveryPage,
+    OfferPage,
+    PartnershipPage,
+    PrivacyPage,
+)
+from src.content.stubs import (
+    ABOUT_DEFAULTS,
+    CARE_DEFAULTS,
+    CONTACTS_DEFAULTS,
+    DELIVERY_DEFAULTS,
+    HOME_DEFAULTS,
+    OFFER_DEFAULTS,
+    PARTNERSHIP_DEFAULTS,
+    PRIVACY_DEFAULTS,
+)
+from src.core.seed.images import render_banner, render_cover, replace_image
 
 FAQ = [
     ('Як записатися на примірку?', 'Залиште заявку в контактах або зателефонуйте в салон. Примірка триває близько години, з собою варто взяти взуття на каблуку.'),
@@ -93,43 +63,49 @@ BLOG = [
     ),
 ]
 
+SITE_CONTACTS = {
+    'phone': '+380322000100',
+    'email': 'hello@varvarova.com',
+    'instagram': 'https://instagram.com/varvarova',
+    'address': 'Львів, вул. Січових Стрільців, 12',
+    'bank': {
+        'recipient': 'ФОП Варварова',
+        'iban': 'UA123456789012345678901234567',
+        'edrpou': '12345678',
+        'bank_name': 'ПриватБанк',
+    },
+}
+
 SALONS = [
     {
-        'name': 'Varvarova Atelier',
+        'name': 'VARVAROVA',
         'country': 'Україна',
-        'city': 'Львів',
-        'address': 'вул. Січових Стрільців, 12',
+        'city': 'Ірпінь',
+        'address': 'Ірпінь, Київська область',
         'phone': '+380322000100',
-        'email': 'lviv@varvarova.com',
-        'lat': '49.841000',
-        'lng': '24.031500',
-        'working_hours': 'Вт–Сб 11:00–19:00',
+        'email': 'hello@varvarova.com',
+        'lat': '50.518600',
+        'lng': '30.241700',
+        'working_hours': 'Вт–Сб 11:00–19:00 · Нд за записом',
         'sort_order': 10,
     },
-    {
-        'name': 'Varvarova Kyiv Salon',
-        'country': 'Україна',
-        'city': 'Київ',
-        'address': 'вул. Велика Васильківська, 48',
-        'phone': '+380442000200',
-        'email': 'kyiv@varvarova.com',
-        'lat': '50.437000',
-        'lng': '30.516000',
-        'working_hours': 'Вт–Сб 12:00–20:00',
-        'sort_order': 20,
-    },
-    {
-        'name': 'Atelier Partner — Warszawa',
-        'country': 'Польща',
-        'city': 'Варшава',
-        'address': 'ul. Mokotowska 19',
-        'phone': '+48222000300',
-        'email': 'warsaw@varvarova.com',
-        'lat': '52.225000',
-        'lng': '21.018000',
-        'working_hours': 'Ср–Сб 12:00–18:00',
-        'sort_order': 30,
-    },
+]
+
+TRUNK_SHOWS = [
+    (
+        'Trunk Show — Milano',
+        'Мілан',
+        'Brera Atelier',
+        21,
+        'Показ весільної лінії та couture для партнерів Італії.',
+    ),
+    (
+        'Trunk Show — Paris',
+        'Париж',
+        'Rue de Turenne',
+        45,
+        'Примірка нової колекції для салонів Франції.',
+    ),
 ]
 
 REVIEWS = [
@@ -143,26 +119,76 @@ REVIEWS = [
 def seed_content() -> dict[str, int]:
     settings = SiteSettings.load()
     settings.site_name = 'Varvarova'
-    settings.contacts_json = {
-        'phone': '+380322000100',
-        'email': 'hello@varvarova.com',
-        'instagram': 'https://instagram.com/varvarova',
-        'address': 'Львів, вул. Січових Стрільців, 12',
-        'bank': {
-            'recipient': 'ФОП Варварова',
-            'iban': 'UA123456789012345678901234567',
-            'edrpou': '12345678',
-            'bank_name': 'ПриватБанк',
-        },
-    }
+    settings.contacts_json = dict(SITE_CONTACTS)
     settings.robots_txt = 'User-agent: *\nAllow: /\n'
     settings.save()
 
-    for slug, title, body in PAGES:
-        Page.objects.update_or_create(
-            slug=slug,
-            defaults={'title': title, 'body': body, 'is_published': True, 'seo_title': f'{title} — Varvarova'},
-        )
+    home, _home_created = HomePage.objects.update_or_create(
+        pk=1,
+        defaults={
+            **HOME_DEFAULTS,
+            'seo_title': 'Varvarova',
+        },
+    )
+    replace_image(home.hero_image, 'hero.jpg', render_banner())
+    AboutPage.objects.update_or_create(
+        pk=1,
+        defaults={
+            **ABOUT_DEFAULTS,
+            'seo_title': 'Про бренд — Varvarova',
+        },
+    )
+    Page.objects.filter(slug='about').delete()
+    partner, _created = PartnershipPage.objects.update_or_create(
+        pk=1,
+        defaults={
+            **PARTNERSHIP_DEFAULTS,
+            'seo_title': 'Стати партнером — Varvarova',
+        },
+    )
+    if not partner.hero_image:
+        replace_image(partner.hero_image, 'hero.jpg', render_cover('Партнерам', 'ivory'))
+    Page.objects.filter(slug='partnership').delete()
+    DeliveryPage.objects.update_or_create(
+        pk=1,
+        defaults={
+            **DELIVERY_DEFAULTS,
+            'seo_title': 'Доставка та оплата — Varvarova',
+        },
+    )
+    Page.objects.filter(slug='delivery').delete()
+    CarePage.objects.update_or_create(
+        pk=1,
+        defaults={
+            **CARE_DEFAULTS,
+            'seo_title': 'Догляд за сукнею — Varvarova',
+        },
+    )
+    Page.objects.filter(slug='care').delete()
+    OfferPage.objects.update_or_create(
+        pk=1,
+        defaults={
+            **OFFER_DEFAULTS,
+            'seo_title': 'Публічна оферта — Varvarova',
+        },
+    )
+    Page.objects.filter(slug='offer').delete()
+    PrivacyPage.objects.update_or_create(
+        pk=1,
+        defaults={
+            **PRIVACY_DEFAULTS,
+            'seo_title': 'Політика конфіденційності — Varvarova',
+        },
+    )
+    Page.objects.filter(slug='privacy').delete()
+    ContactsPage.objects.update_or_create(
+        pk=1,
+        defaults={
+            **CONTACTS_DEFAULTS,
+            'seo_title': 'Контакти — Varvarova',
+        },
+    )
+    Page.objects.filter(slug='contacts').delete()
 
     for index, (question, answer) in enumerate(FAQ):
         FaqItem.objects.update_or_create(
@@ -184,49 +210,31 @@ def seed_content() -> dict[str, int]:
             },
         )
         if created or not post.cover_image:
-            post.cover_image.save(
-                f'{slug}.jpg',
-                as_file(render_cover(title, tone), f'{slug}.jpg'),
-                save=True,
-            )
+            replace_image(post.cover_image, f'{slug}.jpg', render_cover(title, tone))
 
-    banner, _banner_created = Banner.objects.update_or_create(
-        sort_order=0,
-        defaults={'title': 'Нова колекція', 'link_url': '/katalog/wedding/', 'is_active': True},
-    )
-    if banner.image:
-        banner.image.delete(save=False)
-    banner.image.save('hero.jpg', as_file(render_banner(), 'hero.jpg'), save=True)
-
+    kept_ids = []
     for row in SALONS:
-        Salon.objects.update_or_create(
+        salon, _ = Salon.objects.update_or_create(
             name=row['name'],
             city=row['city'],
             defaults={**{k: v for k, v in row.items() if k not in ('name', 'city')}, 'is_active': True},
         )
+        kept_ids.append(salon.pk)
+    Salon.objects.exclude(pk__in=kept_ids).update(is_active=False)
 
-    TrunkShow.objects.update_or_create(
-        title='Trunk Show — Milano',
-        defaults={
-            'city': 'Мілан',
-            'place': 'Brera Atelier',
-            'starts_at': now + timedelta(days=21),
-            'ends_at': now + timedelta(days=23),
-            'description': 'Показ весільної лінії та couture для партнерів Італії.',
-            'is_published': True,
-        },
-    )
-    TrunkShow.objects.update_or_create(
-        title='Trunk Show — Paris',
-        defaults={
-            'city': 'Париж',
-            'place': 'Rue de Turenne',
-            'starts_at': now + timedelta(days=45),
-            'ends_at': now + timedelta(days=47),
-            'description': 'Примірка нової колекції для салонів Франції.',
-            'is_published': True,
-        },
-    )
+    for title, city, place, days, description in TRUNK_SHOWS:
+        TrunkShow.objects.update_or_create(
+            title=title,
+            defaults={
+                'home_page': home,
+                'city': city,
+                'place': place,
+                'starts_at': now + timedelta(days=days),
+                'ends_at': now + timedelta(days=days + 2),
+                'description': description,
+                'is_published': True,
+            },
+        )
 
     products = {p.slug: p for p in Product.objects.filter(slug__in=['aurelia', 'celeste', 'isadora', 'nocturne'])}
     for index, (author, text, rating, slug) in enumerate(REVIEWS):
@@ -245,10 +253,10 @@ def seed_content() -> dict[str, int]:
             defaults={'product': product, 'sort_order': index, 'is_published': True},
         )
         if created or not item.image:
-            item.image.save(
+            replace_image(
+                item.image,
                 f'bride-{slug}.jpg',
-                as_file(render_cover(product.name, 'ivory'), f'bride-{slug}.jpg'),
-                save=True,
+                render_cover(product.name, 'ivory'),
             )
 
     PartnerApplication.objects.get_or_create(
